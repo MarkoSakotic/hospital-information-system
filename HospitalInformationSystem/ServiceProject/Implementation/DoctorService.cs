@@ -34,9 +34,28 @@ namespace ServiceProject.Implementation
             throw new NotImplementedException();
         }
 
-        public Task<ApiResponse> DeleteAsync(string id)
+        public async Task<ApiResponse> DeleteAsync(string id)
         {
-            throw new NotImplementedException();
+            ApiResponse response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+
+            var doctor = await _context.Doctors
+                .Include(p => p.Appointments)
+                .Where(p => p.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (doctor == null)
+            {
+                response.Errors.Add("Unable to delete Doctor because it doesn't exists.");
+                return response;
+            }
+
+            _context.Appointments.RemoveRange(_context.Appointments.Where(a => a.DoctorId == id && a.Completed == false));
+            _context.Doctors.Remove(doctor);
+            await _context.SaveChangesAsync();
+
+            response.Result = $"Doctor with id: [{id}] is deleted successfully.";
+            return response;
         }
 
         public async Task<ApiResponse> GetAllAsync()
