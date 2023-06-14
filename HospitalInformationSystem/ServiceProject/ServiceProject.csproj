@@ -5,16 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Implementation\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DtoEntityProject\DtoEntityProject.csproj" />
     <ProjectReference Include="..\EntityProject\EntityProject.csproj" />
+    <ProjectReference Include="..\RepositoryProject\RepositoryProject.csproj" />
   </ItemGroup>
 
 </Project>
