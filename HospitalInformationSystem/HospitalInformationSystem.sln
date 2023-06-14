@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityProject", "EntityProj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepositoryProject", "RepositoryProject\RepositoryProject.csproj", "{4BA34D80-187D-4C6C-8E79-E1D1B51F7546}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMVC", "WebMVC\WebMVC.csproj", "{F5A5CA51-2655-47DA-9F6E-65BC7486DED6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMVC", "WebMVC\WebMVC.csproj", "{F5A5CA51-2655-47DA-9F6E-65BC7486DED6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DtoEntityProject", "DtoEntityProject\DtoEntityProject.csproj", "{133E60D7-A479-4DCD-BCF8-92D5F8776B42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{F5A5CA51-2655-47DA-9F6E-65BC7486DED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5A5CA51-2655-47DA-9F6E-65BC7486DED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5A5CA51-2655-47DA-9F6E-65BC7486DED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{133E60D7-A479-4DCD-BCF8-92D5F8776B42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{133E60D7-A479-4DCD-BCF8-92D5F8776B42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{133E60D7-A479-4DCD-BCF8-92D5F8776B42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{133E60D7-A479-4DCD-BCF8-92D5F8776B42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
