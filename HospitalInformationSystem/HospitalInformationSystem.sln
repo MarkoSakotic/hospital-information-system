@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMVC", "WebMVC\WebMVC.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DtoEntityProject", "DtoEntityProject\DtoEntityProject.csproj", "{133E60D7-A479-4DCD-BCF8-92D5F8776B42}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceProject", "ServiceProject\ServiceProject.csproj", "{D5526153-C3EF-49D7-AB46-2FEE7AD8C3B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{133E60D7-A479-4DCD-BCF8-92D5F8776B42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{133E60D7-A479-4DCD-BCF8-92D5F8776B42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{133E60D7-A479-4DCD-BCF8-92D5F8776B42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5526153-C3EF-49D7-AB46-2FEE7AD8C3B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5526153-C3EF-49D7-AB46-2FEE7AD8C3B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5526153-C3EF-49D7-AB46-2FEE7AD8C3B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5526153-C3EF-49D7-AB46-2FEE7AD8C3B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
