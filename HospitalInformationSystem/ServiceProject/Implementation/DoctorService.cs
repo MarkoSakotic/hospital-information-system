@@ -29,9 +29,45 @@ namespace ServiceProject.Implementation
             _jwtParser = jwtParser;
         }
 
-        public Task<ApiResponse> AddAsync(DoctorRequest request)
+        public async Task<ApiResponse> AddAsync(DoctorRequest request)
         {
-            throw new NotImplementedException();
+            ApiResponse response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+
+            if (request.DateOfBirth > DateTime.Now)
+            {
+                response.Errors.Add("Date of birth cannot be in the future.");
+                return response;
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            if (existingUser != null)
+            {
+                response.Errors.Add("Doctor alredy exists");
+                return response;
+            }
+
+            Doctor doctor = _mapper.Map<Doctor>(request);
+            doctor.UserName = request.Email;
+
+            var newUser = await _userManager.CreateAsync(doctor, request.Password);
+            if (!newUser.Succeeded)
+            {
+                response.Errors = newUser.Errors.Select(s => s.Description).ToList();
+                return response;
+            }
+
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            var rolesResult = await _userManager.AddToRoleAsync(user, Constants.Doctor);
+
+            if (!rolesResult.Succeeded)
+            {
+                response.Errors = newUser.Errors.Select(s => s.Description).ToList();
+                return response;
+            }
+
+            response.Result = _mapper.Map<DoctorResponse>(user);
+            return response;
         }
 
         public async Task<ApiResponse> DeleteAsync(string id)

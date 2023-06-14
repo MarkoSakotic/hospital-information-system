@@ -25,9 +25,88 @@ namespace ServiceProject.Implementation
             _mapper = mapper;
             _jwtParser = jwtParser;
         }
-        public Task<ApiResponse> CreateAppointmentsAsync(AppointmentRequest appointmentRequest)
+        public async Task<ApiResponse> CreateAppointmentsAsync(AppointmentRequest appointmentRequest)
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+
+            var doctor = await _context.Doctors
+                .Where(d => d.Id == appointmentRequest.DoctorId)
+                .FirstOrDefaultAsync();
+
+            if (doctor == null)
+            {
+                response.Errors.Add("Unable to create appointments because doctor doesn't exists.");
+                return response;
+            }
+
+            var appointments = new List<Appointment>();
+            var workingTime = appointmentRequest.HoursPerDay * 60;
+            var dateTemp = appointmentRequest.StartDate.AddHours(8);
+            var compareStart = appointmentRequest.StartDate;
+            var existingAppointments = await _context.Appointments.Where(a => a.DoctorId == appointmentRequest.DoctorId).Include(a => a.Patient).ToListAsync();
+            var i = 1;
+            var coffeeBreak = 0;
+            while (compareStart <= appointmentRequest.EndDate)
+            {
+                if (!(existingAppointments.Where(a => a.StartTime == dateTemp).Any()))
+                {
+                    var appointment = new Appointment();
+                    appointment.StartTime = dateTemp;
+                    appointment.EndTime = dateTemp.AddMinutes(appointmentRequest.Duration);
+                    appointment.Date = DateTime.Now;
+                    if (coffeeBreak == 2)
+                    {
+                        appointment.Note = "Coffee Break";
+                        coffeeBreak = 0;
+                    }
+                    else
+                    {
+                        appointment.Note = "";
+                        coffeeBreak++;
+                    }
+                    appointment.DoctorId = appointmentRequest.DoctorId;
+                    await _context.AddAsync(appointment);
+                    appointments.Add(appointment);
+                }
+                else
+                {
+                    var existingApp = existingAppointments.Where(a => a.StartTime == dateTemp).FirstOrDefault();
+                    if (coffeeBreak == 2 && existingApp.PatientId == null)
+                    {
+                        existingApp.Note = "Coffee Break";
+                        coffeeBreak = 0;
+                        _context.Update(existingApp);
+                    }
+                    else
+                    {
+                        coffeeBreak++;
+                    }
+                    appointments.Add(existingApp);
+                    response.Errors.Add($"Couldn't add appointment with id: {existingApp.Id} and startTime: {dateTemp} because another appointment is already created with same start time.");
+                }
+                workingTime -= appointmentRequest.Duration;
+                dateTemp = dateTemp.AddMinutes(appointmentRequest.Duration);
+                if (workingTime == 0)
+                {
+                    workingTime = appointmentRequest.HoursPerDay * 60;
+                    compareStart = appointmentRequest.StartDate.AddDays(i);
+                    dateTemp = compareStart.AddHours(8);
+                    coffeeBreak = 0;
+                    i++;
+                }
+            }
+            if (appointments.Count == 0)
+            {
+                response.Errors.Add($"Unable to create appointments for doctor with id: {appointmentRequest.DoctorId}");
+                return response;
+            }
+
+            await _context.SaveChangesAsync();
+
+            response.Result = _mapper.Map<IEnumerable<AppointmentResponse>>(appointments);
+            return response;
+
         }
 
         public Task<ApiResponse> DeleteAppointmentAsync(int id)
