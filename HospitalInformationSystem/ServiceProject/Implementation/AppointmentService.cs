@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ServiceProject.Implementation
@@ -192,9 +193,51 @@ namespace ServiceProject.Implementation
         }
 
 
-        public Task<ApiResponse> UpdateAppointmentAsync(AppointmentUpdate appointmentUpdate)
+        public async Task<ApiResponse> UpdateAppointmentAsync(AppointmentUpdate appointmentUpdate)
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+            var appointment = await _context.Appointments
+                .Where(d => d.Id == appointmentUpdate.Id)
+                .FirstOrDefaultAsync();
+            if (appointmentUpdate.Note == null)
+                appointmentUpdate.Note = "";
+
+            if (appointment == null)
+            {
+                response.Errors.Add("Unable to update appointment because it doesn't exists.");
+                return response;
+            }
+
+            if (appointmentUpdate.PatientId == null)
+            {
+                appointment.PatientId = null;
+                appointment.Patient = null;
+                appointment.Note = appointmentUpdate.Note;
+            }
+            else if (appointmentUpdate.PatientId == "" || Regex.Matches(appointmentUpdate.PatientId, @"^[a-zA-Z0-9_.-]*$").Count == 0)
+            {
+                appointment.Note = appointmentUpdate.Note;
+            }
+            else
+            {
+                var patient = await _context.Patients
+                .Where(d => d.Id == appointmentUpdate.PatientId)
+                .FirstOrDefaultAsync();
+                if (patient == null)
+                {
+                    response.Errors.Add("Unable to update patient in appointment because patient doesn't exists.");
+                    return response;
+                }
+                _mapper.Map(appointmentUpdate, appointment);
+            }
+
+            _context.Update(appointment);
+            await _context.SaveChangesAsync();
+
+            response.Result = _mapper.Map<AppointmentResponse>(appointment);
+            return response;
         }
+
     }
 }
