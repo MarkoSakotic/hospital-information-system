@@ -109,9 +109,23 @@ namespace ServiceProject.Implementation
 
         }
 
-        public Task<ApiResponse> DeleteAppointmentAsync(int id)
+        public async Task<ApiResponse> DeleteAppointmentAsync(int id)
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+            Appointment a = await _context.Appointments.FindAsync(id);
+
+            if (a == null)
+            {
+                response.Errors.Add("Unable to delete appointment, because it doesn't exists.");
+                return response;
+            }
+
+            _context.Appointments.Remove(a);
+            await _context.SaveChangesAsync();
+
+            response.Result = $"Appointment with id: {id} is deleted successfully.";
+            return response;
         }
 
         public async Task<ApiResponse> GetAllAppointmentsAsync()
