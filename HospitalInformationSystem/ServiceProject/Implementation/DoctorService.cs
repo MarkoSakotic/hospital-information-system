@@ -169,9 +169,29 @@ namespace ServiceProject.Implementation
 
         }
 
-        public Task<ApiResponse> UpdateAsync(DoctorUpdate doctorUpdate)
+        public async Task<ApiResponse> UpdateAsync(DoctorUpdate doctorUpdate)
         {
-            throw new NotImplementedException();
+            ApiResponse response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+
+            if (doctorUpdate.DateOfBirth > DateTime.Now)
+            {
+                response.Errors.Add("Date of birth cannot be in the future.");
+                return response;
+            }
+
+            var doctor = await _userManager.FindByIdAsync(doctorUpdate.Id);
+            if (doctor == null)
+            {
+                response.Errors.Add("Unable to update Doctor because it doesn't exists.");
+                return response;
+            }
+
+            _mapper.Map(doctorUpdate, doctor);
+            await _userManager.UpdateAsync(doctor);
+
+            response.Result = _mapper.Map<DoctorResponse>(doctor);
+            return response;
         }
     }
 }
