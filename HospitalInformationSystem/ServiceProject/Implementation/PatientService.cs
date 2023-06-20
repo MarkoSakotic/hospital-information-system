@@ -141,9 +141,28 @@ namespace ServiceProject.Implementation
             return response;
         }
 
-        public Task<ApiResponse> GetPatientsByDoctorAsync()
+        public async Task<ApiResponse> GetPatientsByDoctorAsync()
         {
-            throw new NotImplementedException();
+            ApiResponse response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+            var doctorId = _jwtParser.GetIdFromJWT();
+
+            var patients = await _context.Appointments
+                .Where(a => a.DoctorId == doctorId && a.Patient != null)
+                .Include(a => a.Patient)
+                .Select(a => a.Patient)
+                .Distinct()
+                .ToListAsync();
+
+            if (patients.Count == 0)
+            {
+                response.Errors.Add("There is no Patients in database.");
+                return response;
+            }
+
+            response.Result = _mapper.Map<IEnumerable<PatientResponse>>(patients);
+            return response;
+
         }
 
         public Task<ApiResponse> UpdateAsync(PatientUpdate patientUpdate)
