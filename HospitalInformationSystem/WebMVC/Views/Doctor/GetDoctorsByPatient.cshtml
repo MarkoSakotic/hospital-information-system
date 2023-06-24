@@ -1,0 +1,71 @@
+﻿@{ ViewData["Title"] = "Doctors"; }
+@model PagedList.Core.IPagedList<DtoEntityProject.DoctorResponse>
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body align="center">
+    <div class="container text-center">
+        <h4 class="text-left mb-5">List of Doctors</h4>
+        <div class="form-inline mb-2">
+            <form class="example" action="GetAll" method="get">
+
+                <div class="d-inline textOnInput">
+                    <label for="searchString">Doctor's name</label>
+                    <input class="form-control" id="searchString" type="text" placeholder="" name="searchString">
+                </div>
+                <button type="submit" class="btn btn-primary mr-2"><i class="fa fa-search"></i></button>
+                <span class="error_message">@ViewBag.Errors</span>
+            </form>
+        </div>
+        <div class="table-hover mt-4">
+            <table class="table table-hover" style="border-radius: 10px; border-width: 2px;">
+                <thead class="border-bottom bg-dark text-white">
+                    <tr>
+                        <th><a asp-action="GetDoctorsByPatient" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["FirstNameSortParm"]">First Name <i class="fa fa-sort"></i></a></th>
+                        <th><a asp-action="GetDoctorsByPatient" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["LastNameSortParm"]">Last Name <i class="fa fa-sort"></i></a></th>
+                        <th>Specialization</th>
+                        <th>Email</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+        @foreach (var doctor in Model)
+        {
+<tr>
+    <td>@doctor.FirstName</td>
+    <td>@doctor.LastName</td>
+    <td>@doctor.Specialization</td>
+    <td>@doctor.Email</td>
+    <td class="text-right">
+        @Html.ActionLink("Details", "Details", new { id = doctor.Id }, new { @class = "btn btn-outline-info" })
+    </td>
+</tr>} }
+    else
+    {
+<tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+</tr>}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" , align="center">
+                            <pager class="pagination custom-pager" list="@Model" asp-route-searchString="@ViewBag.SearchString" asp-controller="Doctor"
+                                   asp-action="GetDoctorsByPatient" />
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
