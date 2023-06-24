@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DtoEntityProject
+namespace DtoEntityProject.Constants
 {
     public static class Constants
     {

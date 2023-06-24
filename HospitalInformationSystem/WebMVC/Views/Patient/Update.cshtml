@@ -1,0 +1,78 @@
+﻿@model DtoEntityProject.PatientUpdate
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Update Patient</title>
+</head>
+<body>
+
+    <div class="container-fluid col-6 pt-2">
+        <div class="form-group text-left">
+            <form>
+                <input type="button" class="btn btn-primary" value="Back" onclick="@("window.location.href='" + @Url.Action("GetAll", "Patient") + "'");">
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <div class="font-weight-bold text-left" style="font-size: 25px">
+                    <h4 class="text-left mb-3">
+                        Patient: @(String.Format("{0} {1}", (string)Model.FirstName, (string)Model.LastName))
+                    </h4>
+                </div>
+                <div class="child text-center flex-child">
+                    <p class="error_message">@ViewBag.Errors</p>
+                </div>
+                <form asp-controller="Patient" asp-action="Update" method="post">
+                    <input type="hidden" asp-for="Id">
+                    <div class="form-group">
+                        <label asp-for="FirstName">First name<span class="text-danger">*</span></label>
+                        <input class="form-control" asp-for="FirstName" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LastName">Last name<span class="text-danger">*</span></label>
+                        <input class="form-control" asp-for="LastName" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Address">Address<span class="text-danger">*</span></label>
+                        <input class="form-control" asp-for="Address" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Phone">Phone<span class="text-danger">*</span></label>
+                        <input class="form-control" asp-for="Phone" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="SSN">SSN<span class="text-danger">*</span></label>
+                        <input class="form-control" asp-for="SSN" />
+                        <span asp-validation-for="SSN" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DateOfBirth">Date of birth<span class="text-danger">*</span></label>
+                        <input class="datepicker form-control" asp-for="DateOfBirth" />
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Email">Email<span class="text-danger">*</span></label>
+                        <input class="form-control" type="email" asp-for="Email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group text-center">
+                        <input type="submit" class="btn btn-primary" value="Update" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+@section Scripts {
+    <script>
+        $(function () {
+            $('.datepicker').datepicker();
+        })
+    </script>
+}
