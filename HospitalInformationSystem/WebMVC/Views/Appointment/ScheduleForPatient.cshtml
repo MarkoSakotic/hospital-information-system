@@ -1,0 +1,119 @@
+﻿@{ ViewData["Title"] = "Schedule Appointments for Patient"; }
+@model PagedList.Core.IPagedList<DtoEntityProject.AppointmentResponse>
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+
+<body align="center">
+
+    <div class="container text-center">
+        <div class="form-group text-left">
+            <form>
+                <input type="button" class="btn btn-primary" value="Back" onclick="@("window.location.href='" + @Url.Action("GetAll", "Doctor") + "'");">
+            </form>
+        </div>
+        <h4 class="text-left mb-5">List of scheduled appointments for patient: @ViewBag.PatientName </h4>
+        <div class="form-inline mb-2">
+            <div class="form-inline d-inline text-left w-75">
+                <form asp-route-patientId="@ViewBag.PatientId" asp-action="ScheduledForPatient" method="post">
+                    <input type="hidden" id="patientId" name="patientId" value="@ViewBag.PatientId" />
+                    <input class="form-control" id="searchString" type="text" placeholder="Doctor's name..." name="searchString" asp-for="@ViewData["searchString"]">
+                    <input type="hidden" value="@ViewBag.SearchString" id="searchString" name="searchString" />
+                    <div class="d-inline textOnInput">
+                        <label for="startDate">Start Date</label>
+                        <input class="datepicker form-control" type="date" asp-for="@ViewData["startDate"]" name="startDate" id="startDate" />
+                    </div>
+                    <div class="d-inline textOnInput">
+                        <label for="endDate">End Date</label>
+                        <input class="datepicker form-control" type="date" asp-for="@ViewData["endDate"]" name="endDate" id="endDate" />
+                    </div>
+                    <select class="form-control" id="filterList" asp-for="@ViewData["filter"]" name="filter" asp-items="@(ViewBag.Filters)">
+                    </select>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+                </form>
+            </div>
+            @*<div class="form-inline d-inline text-left w-50">
+                    <form asp-route="ScheduledForPatient" asp-route-patientId="@ViewBag.PatientId" method="post">
+                        <input type="hidden" value="@ViewBag.SearchString" id="searchString" name="searchString"  />
+                        <input type="hidden" value="@ViewBag.filter" id="filter" name="filter" />
+                        <div class="d-inline textOnInput">
+                            <label for="startDate">Start Date</label>
+                            <input class="datepicker form-control" type="date" asp-for="@ViewData["startDate"]" name="startDate" id="startDate" />
+                        </div>
+                        <div class="d-inline textOnInput">
+                            <label for="endDate">End Date</label>
+                            <input class="datepicker form-control" type="date" asp-for="@ViewData["endDate"]" name="endDate" id="endDate" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </form>
+                </div>*@
+            @*<div class="form-inline d-inline text-right w-25">
+                    <form asp-action="ScheduledForPatient" asp-route-searchString="@ViewBag.SearchString" asp-route-patientId="@ViewBag.PatientId"  asp-route-startDate = "@ViewBag.StartDate" asp-route-endDate = "@ViewBag.EndDate" method="post">
+                        <select class="form-control" id="filterList" asp-for="@ViewData["filter"]" name="filter" asp-items="@(ViewBag.Filters)">
+                        </select>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-filter"></i></button>
+                    </form>
+                </div>*@
+        </div>
+        <div class="table-responsive">
+            <div class="child text-right flex-child mt-2">
+                @if (ViewBag.Errors != null)
+                {
+    <span class="error_message">@ViewBag.Errors</span> }
+                else
+                {
+    <span class="error_message"> &nbsp;</span>}
+            </div>
+            <table class="table table-hover" style="border-radius: 10px; border-width: 2px;">
+                <thead class="border-bottom bg-dark text-white">
+                    <tr>
+                        <th><a asp-action="ScheduledForPatient" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-patientId="@ViewBag.PatientId">Date <i class="fa fa-sort"></i></a></th>
+                        <th>Time</th>
+                        <th colspan="2"><a asp-action="ScheduledForPatient" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-patientId="@ViewBag.PatientId">Doctor <i class="fa fa-sort"></i></a></th>
+                        <th><a asp-action="ScheduledForPatient" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["CreatedOnSortParm"]" asp-route-patientId="@ViewBag.PatientId">Created on <i class="fa fa-sort"></i></a></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+        @foreach (var app in Model)
+        {
+<tr>
+    <td>@app.StartTime.Date.ToString("MM/dd/yyyy")</td>
+    <td>@app.StartTime.ToString("hh:mm tt") - @app.EndTime.ToString("hh:mm tt")</td>
+    <td colspan="2">
+        @app.Doctor.FirstName
+        @app.Doctor.LastName
+    </td>
+    <td>@app.Date</td>
+    <td class="text-right">
+        @Html.ActionLink("Details", "Details", new { id = app.Id }, new { @class = "btn btn-outline-info" })
+    </td>
+</tr>} }
+    else
+    {
+<tr>
+    <td></td>
+    <td></td>
+    <td colspan="2"></td>
+    <td></td>
+    <td></td>
+</tr>}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6" , align="center">
+                            <pager class="pagination custom-pager" list="@Model" asp-route-filter="@ViewBag.Filter" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-patientId="@ViewBag.PatientId" asp-controller="Appointment" asp-route-sortOrder="@ViewBag.SortOrder"
+                                   asp-action="ScheduledForPatient" />
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

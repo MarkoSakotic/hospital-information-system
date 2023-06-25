@@ -1,0 +1,79 @@
+﻿@model DtoEntityProject.AppointmentSchedule
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Schedule Appointment</title>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.10.0.min.js" type="text/javascript"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>
+    <link href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" rel="Stylesheet" type="text/css" />
+</head>
+<body>
+
+    <div class="container-fluid col-6 pt-2">
+        <div class="form-group text-left">
+            <form>
+                <input type="button" class="btn btn-primary" value="Back" onclick="history.back()">
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h4 class="text-left mb-3">Schedule appointment for doctor: @(String.Format("{0} {1}", @ViewBag.Appointment.Doctor.FirstName, @ViewBag.Appointment.Doctor.LastName))</h4>
+                <div class="child text-center flex-child">
+                    <p class="error_message">@ViewBag.Error</p>
+                </div>
+                <form asp-controller="Appointment" asp-action="Schedule" method="post">
+                    <input type="hidden" asp-for="AppointmentId">
+                    <div class="form-group">
+                        <label asp-for="PatientId">Patient<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="searchInput" name="PatientName" />
+                        <input type="hidden" class="form-control" id="patientId" name="PatientId" />
+                        <span asp-validation-for="PatientId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Note">Note</label>
+                        <input class="form-control" asp-for="Note" />
+                        <span asp-validation-for="Note" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input class="form-control" value="@ViewBag.Appointment.StartTime" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label>End Time</label>
+                        <input class="form-control" value="@ViewBag.Appointment.EndTime" readonly />
+                    </div>
+                    <div class="form-group text-center">
+                        <input type="submit" class="btn btn-primary" value="Schedule" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>$("#searchInput").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Appointment/GetSearchValue',
+                    data: { "search": request.term },
+                    type: "POST",
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return item;
+                        }));
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            select: function (e, i) {
+                $("#patientId").val(i.item.val);
+            },
+            minLength: 1
+        });</script>
+</body>
+</html>
+

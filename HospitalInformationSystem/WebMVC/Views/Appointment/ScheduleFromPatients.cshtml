@@ -1,0 +1,51 @@
+﻿@model DtoEntityProject.AppointmentSchedule
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Schedule Appointment</title>
+</head>
+<body>
+
+    <div class="container-fluid col-6 pt-2">
+        <div class="form-group text-left">
+            <form>
+                <input type="button" class="btn btn-primary" value="Back" onclick="history.back()">
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h4 class="text-left mb-3">Schedule appointment for patient: @(String.Format("{0} {1}", @ViewBag.Patient.FirstName, @ViewBag.Patient.LastName))</h4>
+                <div class="child text-center flex-child">
+                    <p class="error_message">@ViewBag.Error</p>
+                </div>
+                <form asp-controller="Appointment" asp-action="Schedule" method="post">
+                    <input type="hidden" asp-for="AppointmentId" />
+                    <input type="hidden" asp-for="PatientId" />
+                    <div class="form-group">
+                        <label asp-for="Note">Note</label>
+                        <input class="form-control" asp-for="Note" />
+                        <span asp-validation-for="Note" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Doctor</label>
+                        <input class="form-control" value="@(String.Format(" {0} {1}", @ViewBag.Appointment.Doctor.FirstName, @ViewBag.Appointment.Doctor.LastName))" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input class="form-control" value="@ViewBag.Appointment.StartTime" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label>End Time</label>
+                        <input class="form-control" value="@ViewBag.Appointment.EndTime" readonly />
+                    </div>
+                    <div class="form-group text-center">
+                        <input type="submit" class="btn btn-primary" value="Schedule" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

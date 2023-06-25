@@ -1,0 +1,61 @@
+﻿@model DtoEntityProject.AppointmentRequest
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Add Appointments</title>
+</head>
+<body>
+
+    <div class="container-fluid col-6 pt-2">
+        <div class="form-group text-left">
+            <form>
+                <input type="button" class="btn btn-primary" value="Back" onclick="@("window.location.href='" + @Url.Action("GetAll", "Doctor") + "'");">
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h4 class="text-left mb-3">Create appointments for doctor: @ViewBag.DoctorName</h4>
+                <div class="child text-center flex-child">
+                    <p class="error_message">@ViewBag.Errors</p>
+                </div>
+                <form asp-controller="Appointment" asp-action="Create" method="post">
+                    <input type="hidden" asp-for="DoctorId">
+                    <div class="form-group">
+                        <label asp-for="StartDate">Start Date<span class="text-danger">*</span></label>
+                        <input class="datepicker form-control" asp-for="StartDate" />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EndDate">End Date<span class="text-danger">*</span></label>
+                        <input class="datepicker form-control" asp-for="EndDate" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Duration">Duration [min]<span class="text-danger">*</span></label>
+                        <input class="form-control" asp-for="Duration" />
+                        <span asp-validation-for="Duration" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="HoursPerDay">Hours per day<span class="text-danger">*</span></label>
+                        <input class="form-control" asp-for="HoursPerDay" />
+                        <span asp-validation-for="HoursPerDay" class="text-danger"></span>
+                    </div>
+                    <div class="form-group text-center">
+                        <input type="submit" class="btn btn-primary" value="Create" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+@section Scripts {
+    <script>$(function () {
+            $('.datepicker').datepicker();
+        })</script>
+
+}

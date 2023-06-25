@@ -1,0 +1,114 @@
+﻿@{ ViewData["Title"] = "Schedule Appointments for Doctor"; }
+@model PagedList.Core.IPagedList<DtoEntityProject.AppointmentResponse>
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="~/css/site.css" rel="stylesheet" />
+
+</head>
+
+<body align="center">
+
+    <div class="container text-center pt-2">
+        <div class="form-group text-left">
+            <form>
+                <input type="button" class="btn btn-primary" value="Back" onclick="@("window.location.href='" + @Url.Action("GetAll", "Doctor") + "'");" />
+            </form>
+        </div>
+        <h4 class="text-left mb-5">List of Appointments for doctor: @ViewBag.DoctorName</h4>
+        <div class="form-inline">
+            <div class="form-inline d-inline text-left w-100">
+                <form asp-route="GetAllForDoctor" asp-route-doctorId="@ViewBag.DoctorId" method="post">
+                    <div class="d-inline textOnInput">
+                        <label for="startDate">Start Date</label>
+                        <input class="datepicker form-control" type="date" asp-for="@ViewData["startDate"]" name="startDate" id="startDate" />
+                    </div>
+                    <div class="d-inline textOnInput">
+                        <label for="endDate">End Date</label>
+                        <input class="datepicker form-control" type="date" asp-for="@ViewData["endDate"]" name="endDate" id="endDate" />
+                    </div>
+
+                    <div class="d-inline textOnInput">
+                        <label for="searchString">Status</label>
+                        <select class="form-control" id="filterList" asp-for="@ViewData["filter"]" name="filter" asp-items="@(ViewBag.Filters)">
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" name="buttonFilter" value="applyFilter"><i class="fa fa-search"></i></button>
+                    <button type="submit" class="btn btn-primary" name="buttonFilter" value="clearFilter"><i class="fa fa-window-close"></i></button>
+                    <div class="child text-right flex-child">
+                        @if (ViewBag.Errors != null)
+                        {
+            <span class="error_message">@ViewBag.Errors</span> }
+                        else
+                        {
+            <span class="error_message">&nbsp;</span>}
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover" style="border-radius: 10px; border-width: 2px;">
+                <thead class="border-bottom bg-dark text-white">
+                    <tr>
+                        <th><a asp-action="GetAllForDoctor" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-page="@ViewBag.Page" asp-route-filter="@ViewBag.Filter" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-doctorId="@ViewBag.DoctorId">Date <i class="fa fa-sort"></i></a></th>
+                        <th>Time</th>
+                        <th colspan="2"><a asp-action="GetAllForDoctor" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["PatientSortParm"]" asp-route-doctorId="@ViewBag.DoctorId">Patient <i class="fa fa-sort"></i></a></th>
+                        <th><a asp-action="GetAllForDoctor" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["NoteSortParm"]" asp-route-doctorId="@ViewBag.DoctorId">Note <i class="fa fa-sort"></i></a></th>
+                        <th><a asp-action="GetAllForDoctor" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["CreatedOnSortParm"]" asp-route-doctorId="@ViewBag.DoctorId">Created on <i class="fa fa-sort"></i></a></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+        @foreach (var app in Model)
+        {
+<tr>
+    <td>@app.StartTime.Date.ToString("MM/dd/yyyy")</td>
+    <td>@app.StartTime.ToString("hh:mm tt") - @app.EndTime.ToString("hh:mm tt")</td>
+    @if (@app.Patient != null)
+    {
+<td colspan="2">@app.Patient.FirstName @app.Patient.LastName</td> }
+                    else
+                    {
+<td colspan="2"></td>}
+
+    <td>@app.Note</td>
+    <td>@app.Date</td>
+
+    <td class="text-right">
+        @if (app.Patient != null)
+        {
+@Html.ActionLink("Schedule", "Schedule", new { id = app.Id }, new { @class = "btn btn-secondary disabled" }) }
+else
+{
+@Html.ActionLink("Schedule", "Schedule", new { id = app.Id }, new { @class = "btn btn-outline-info" })}
+    </td>
+</tr>} }
+    else
+    {
+<tr>
+    <td></td>
+    <td></td>
+    <td colspan="2"></td>
+    <td></td>
+    <td></td>
+    <td></td>
+</tr>}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6" , align="center">
+                            <pager class="pagination custom-pager" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" list="@Model" asp-route-doctorId="@ViewBag.DoctorId" asp-route-sortOrder="@ViewBag.SortOrder" asp-controller="Appointment"
+                                   asp-action="GetAllForDoctor" />
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

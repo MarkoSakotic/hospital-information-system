@@ -27,10 +27,27 @@ namespace ServiceProject.Implementation
             _mapper = mapper;
             _jwtParser = jwtParser;
         }
+
         public async Task<ApiResponse> CreateAppointmentsAsync(AppointmentRequest appointmentRequest)
         {
             var response = new ApiResponse();
             response.Roles.Add(_jwtParser.GetRoleFromJWT());
+
+            if (appointmentRequest.HoursPerDay <= 0)
+            {
+                response.Errors.Add("Invalid number of Hours Per Day.");
+                return response;
+            }
+            if (appointmentRequest.StartDate < DateTime.UtcNow.Date)
+            {
+                response.Errors.Add("Start date cannot be in past.");
+                return response;
+            }
+            if (appointmentRequest.EndDate < appointmentRequest.StartDate)
+            {
+                response.Errors.Add("End date cannot be before start date.");
+                return response;
+            }
 
             var doctor = await _context.Doctors
                 .Where(d => d.Id == appointmentRequest.DoctorId)
@@ -111,23 +128,26 @@ namespace ServiceProject.Implementation
 
         }
 
-        public async Task<ApiResponse> DeleteAppointmentAsync(int id)
+        public async Task<ApiResponse> GetAppointmentAsync(int id)
         {
             var response = new ApiResponse();
             response.Roles.Add(_jwtParser.GetRoleFromJWT());
-            Appointment a = await _context.Appointments.FindAsync(id);
+
+            Appointment a = await _context.Appointments
+                .Include(b => b.Doctor)
+                .Include(b => b.Patient)
+                .Where(b => b.Id == id)
+                .FirstOrDefaultAsync();
 
             if (a == null)
             {
-                response.Errors.Add("Unable to delete appointment, because it doesn't exists.");
+                response.Errors.Add("Unable to get appointment, because it doesn't exists.");
                 return response;
             }
 
-            _context.Appointments.Remove(a);
-            await _context.SaveChangesAsync();
-
-            response.Result = $"Appointment with id: {id} is deleted successfully.";
+            response.Result = _mapper.Map<AppointmentResponse>(a);
             return response;
+
         }
 
         public async Task<ApiResponse> GetAllAppointmentsAsync()
@@ -169,28 +189,6 @@ namespace ServiceProject.Implementation
             }
             response.Result = _mapper.Map<IEnumerable<AppointmentResponse>>(appointments);
             return response;
-        }
-
-        public async Task<ApiResponse> GetAppointmentAsync(int id)
-        {
-            var response = new ApiResponse();
-            response.Roles.Add(_jwtParser.GetRoleFromJWT());
-
-            Appointment a = await _context.Appointments
-                .Include(b => b.Doctor)
-                .Include(b => b.Patient)
-                .Where(b => b.Id == id)
-                .FirstOrDefaultAsync();
-
-            if (a == null)
-            {
-                response.Errors.Add("Unable to get appointment, because it doesn't exists.");
-                return response;
-            }
-
-            response.Result = _mapper.Map<AppointmentResponse>(a);
-            return response;
-
         }
 
 
@@ -240,5 +238,172 @@ namespace ServiceProject.Implementation
             return response;
         }
 
+        public async Task<ApiResponse> DeleteAppointmentAsync(int id)
+        {
+            var response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+            Appointment a = await _context.Appointments.FindAsync(id);
+
+            if (a == null)
+            {
+                response.Errors.Add("Unable to delete appointment, because it doesn't exists.");
+                return response;
+            }
+
+            _context.Appointments.Remove(a);
+            await _context.SaveChangesAsync();
+
+            response.Result = $"Appointment with id: {id} is deleted successfully.";
+            return response;
+        }
+
+        public async Task<ApiResponse> ScheduleAppointmentAsync(AppointmentSchedule appointmentSchedule)
+        {
+            var response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+
+            var appointment = await _context.Appointments
+                .Where(a => a.Id == appointmentSchedule.AppointmentId)
+                .FirstOrDefaultAsync();
+
+            if (appointment == null)
+            {
+                response.Errors.Add("Unable to schedule appointment because it doesn't exists.");
+                return response;
+            }
+            if (appointment.Note == "Coffee Break")
+            {
+                if (appointmentSchedule.Note == "Coffee Break")
+                {
+                    response.Errors.Add("You cannot schedule this appointment because doctor is on coffee break as usual.");
+                    return response;
+                }
+            }
+            if (appointmentSchedule.PatientId == "" || appointmentSchedule.PatientId == null)
+            {
+                response.Errors.Add("Unable to schedule appointment because patient is not selected.");
+                return response;
+            }
+            else
+            {
+                var patient = await _context.Patients
+                    .Where(d => d.Id == appointmentSchedule.PatientId)
+                    .FirstOrDefaultAsync();
+
+                if (appointmentSchedule.Note == null)
+                    appointmentSchedule.Note = "";
+
+                if (patient == null)
+                {
+                    response.Errors.Add("Unable to schedule appointment because patient does not exists.");
+                    return response;
+                }
+                appointment.PatientId = appointmentSchedule.PatientId;
+                appointment.Note = appointmentSchedule.Note;
+                _context.Update(appointment);
+                await _context.SaveChangesAsync();
+
+                response.Result = _mapper.Map<AppointmentResponse>(appointment);
+                return response;
+            }
+        }
+
+        public async Task<ApiResponse> CompleteAppointmentAsync(AppointmentComplete appointmentComplete)
+        {
+            var response = new ApiResponse();
+            response.Roles.Add(_jwtParser.GetRoleFromJWT());
+
+            var doctorId = _jwtParser.GetIdFromJWT();
+            Appointment appointment = await _context.Appointments
+                .Where(a => a.Id == appointmentComplete.AppointmentId)
+                .FirstOrDefaultAsync();
+
+            if (appointmentComplete.Note == null)
+                appointmentComplete.Note = "";
+
+            if (appointment == null)
+            {
+                response.Errors.Add("Database does not contain appointment with that id.");
+                return response;
+            }
+            else if (appointment.DoctorId != doctorId)
+            {
+                response.Errors.Add("You can't complete this appointment because it's not yours.");
+                return response;
+            }
+            else
+            {
+                appointment.Completed = true;
+                appointment.Note = appointmentComplete.Note;
+
+                _context.Update(appointment);
+                await _context.SaveChangesAsync();
+
+                response.Result = _mapper.Map<Appointment, AppointmentResponse>(appointment);
+                return response;
+            }
+        }
+
+        public async Task<ApiResponse> GetAllAppointmentsForUserWithinGivenPeriodAsync(AppointmentFilter appointmentFilter)
+        {
+            var response = new ApiResponse();
+            var role = _jwtParser.GetRoleFromJWT();
+            if (role == "")
+            {
+                response.Errors.Add("There is no needed role for given user.");
+                return response;
+            }
+            response.Roles.Add(role);
+            if (appointmentFilter.StartDate > appointmentFilter.EndDate)
+            {
+                response.Errors.Add("Start date can't be after end date.");
+                return response;
+            }
+
+            List<Appointment> appointments = new List<Appointment>();
+
+            if (role == Constants.Doctor || role == Constants.Technician)
+            {
+                if (appointmentFilter.UserId != null)
+                {
+                    appointments = await _context.Appointments
+                           .Where(a => a.DoctorId == appointmentFilter.UserId
+                               && a.StartTime.CompareTo(appointmentFilter.StartDate) >= 0
+                               && a.StartTime.Date.CompareTo(appointmentFilter.EndDate) <= 0)
+                           .Include(a => a.Patient)
+                           .Include(a => a.Doctor)
+                           .ToListAsync();
+                }
+                else
+                {
+                    appointments = await _context.Appointments
+                           .Where(a => a.StartTime.CompareTo(appointmentFilter.StartDate) >= 0
+                               && a.StartTime.Date.CompareTo(appointmentFilter.EndDate.Date) <= 0)
+                           .Include(a => a.Patient)
+                           .Include(a => a.Doctor)
+                           .ToListAsync();
+                }
+            }
+
+            if (role == Constants.Patient)
+            {
+                appointments = await _context.Appointments
+                       .Where(a => a.PatientId == appointmentFilter.UserId
+                           && a.StartTime.CompareTo(appointmentFilter.StartDate) >= 0
+                           && a.StartTime.Date.CompareTo(appointmentFilter.EndDate.Date) <= 0)
+                       .Include(a => a.Patient)
+                       .Include(a => a.Doctor)
+                       .ToListAsync();
+            }
+
+            if (appointments.Count() == 0)
+            {
+                response.Errors.Add("There is no appointments for given filters.");
+                return response;
+            }
+
+            response.Result = _mapper.Map<IEnumerable<AppointmentResponse>>(appointments);
+            return response;
+        }
     }
 }

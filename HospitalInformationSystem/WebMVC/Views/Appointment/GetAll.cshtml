@@ -1,0 +1,180 @@
+﻿@{ ViewData["Title"] = "Appointments"; }
+@model PagedList.Core.IPagedList<DtoEntityProject.AppointmentResponse>
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+
+<body align="center">
+    <div class="container text-center pt-2">
+        <h4 class="text-left mb-5">List of Appointments</h4>
+        <div class="form-inline">
+            <div class="form-inline d-inline text-left w-100">
+                <form asp-action="GetAll" method="post">
+                    @if (User.IsInRole(Constants.Doctor))
+                    {
+        <div class="d-inline textOnInput">
+            <label for="searchString">Patient's name</label>
+            <input class="form-control" id="searchString" type="text" placeholder="" asp-for="@ViewData["searchString"]" name="searchString">
+        </div> }
+    else
+    {
+<div class="d-inline textOnInput">
+    <label for="searchString">Doctor's name</label>
+    <input class="form-control" id="searchString" type="text" placeholder="" asp-for="@ViewData["searchString"]" name="searchString">
+</div>}
+                    <input type="hidden" value="@ViewBag.SearchString" id="searchString" name="searchString" />
+                    <div class="d-inline textOnInput">
+                        <label for="startDate">Start Date</label>
+                        <input class="datepicker form-control" type="date" asp-for="@ViewData["startDate"]" name="startDate" id="startDate" />
+                    </div>
+                    <div class="d-inline textOnInput">
+                        <label for="endDate">End Date</label>
+                        <input class="datepicker form-control" type="date" asp-for="@ViewData["endDate"]" name="endDate" id="endDate" />
+                    </div>
+
+                    <div class="d-inline textOnInput">
+                        <label for="searchString">Status</label>
+                        <select class="form-control" id="filterList" asp-for="@ViewData["filter"]" name="filter" asp-items="@(ViewBag.Filters)"></select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" name="buttonFilter" value="applyFilter"><i class="fa fa-search"></i></button>
+                    <button type="submit" class="btn btn-primary" name="buttonFilter" value="clearFilter"><i class="fa fa-window-close"></i></button>
+                    <div class="child text-right flex-child">
+                        @if (ViewBag.Errors != null)
+                        {
+            <span class="error_message">@ViewBag.Errors</span> }
+        else
+        {
+<span class="error_message">&nbsp;</span>}
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="table-hover">
+            <table class="table table-hover" style="border-radius: 10px; border-width: 2px;">
+                <thead class="border-bottom bg-dark text-white">
+                    <tr>
+                        <th> <a asp-action="GetAll" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["DateSortParm"]">Date <i class="fa fa-sort"></i></a></th>
+                        <th>Time</th>
+                        <th><a asp-action="GetAll" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["NoteSortParm"]">Note <i class="fa fa-sort"></i></a></th>
+                        @if (!User.IsInRole(Constants.Doctor))
+                        {
+            <th colspan="2"><a asp-action="GetAll" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["NameSortParm"]">Doctor <i class="fa fa-sort"></i></a></th>
+}
+                        <th><a asp-action="GetAll" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["CompletedSortParm"]">Completed <i class="fa fa-sort"></i></a></th>
+                        @if (!User.IsInRole(Constants.Patient))
+                        {
+            <th colspan="2"><a asp-route-startDate="@ViewBag.StartDate" asp-route-searchString="@ViewBag.SearchString" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-action="GetAll" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["PatientSortParm"]">Patient <i class="fa fa-sort"></i></a></th>
+}
+                        <th><a asp-action="GetAll" asp-route-searchString="@ViewBag.SearchString" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-filter="@ViewBag.Filter" asp-route-page="@ViewBag.Page" asp-route-sortOrder="@ViewData["CreatedOnSortParm"]">Created on <i class="fa fa-sort"></i></a></th>
+                        <th colspan="4"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+        @foreach (var app in Model)
+        {
+<tr>
+    <td>@app.StartTime.Date.ToString("MM/dd/yyyy")</td>
+    <td>@app.StartTime.ToString("hh:mm tt") - @app.EndTime.ToString("hh:mm tt")</td>
+    <td>@app.Note</td>
+    @if (!User.IsInRole(Constants.Doctor))
+    {
+<td colspan="2">
+    @app.Doctor.FirstName
+    @app.Doctor.LastName
+</td>
+}
+    @if (@app.Completed)
+    {
+<td>Yes</td>
+ }
+else
+{
+<td>No</td>
+}
+    @if (!User.IsInRole(Constants.Patient))
+    {
+@if (app.Patient != null)
+{
+<td colspan="2">
+    @app.Patient.FirstName
+    @app.Patient.LastName
+</td>
+ }
+else
+{
+<td colspan="2">
+</td>
+}}
+    <td>@app.Date</td>
+    <td colspan="4" class="text-right">
+        @if (User.IsInRole(Constants.Technician))
+        {
+@Html.ActionLink("Details", "Details", new { id = app.Id }, new { @class = "btn btn-outline-info" }) if (app.Completed == true)
+{
+@Html.ActionLink("Update", "Update", new { id = app.Id }, new { @class = "btn btn-outline-secondary disabled" })
+                            @Html.ActionLink("Delete", "Delete", new { id = app.Id }, new { @class = "btn btn-outline-secondary disabled" }) }
+                        else
+                        {
+                            if (app.PatientId != null)
+                            {
+@Html.ActionLink("Update", "Update", new { id = app.Id, patientId = app.PatientId }, new { @class = "btn btn-outline-info" }) }
+else
+{
+@Html.ActionLink("Update", "Update", new { id = app.Id }, new { @class = "btn btn-outline-info" }) }
+@Html.ActionLink("Delete", "Delete", new { id = app.Id }, new { @class = "btn btn-outline-danger" })}
+}
+        @if (app.Completed == false && User.IsInRole(Constants.Doctor) && app.PatientId != null)
+        {
+@Html.ActionLink("Complete", "Complete", new { id = app.Id }, new
+{
+    @class = "btn btn-outline-info"
+}) }
+else if ((app.Completed == true && User.IsInRole(Constants.Doctor)) || (app.Patient == null && User.IsInRole(Constants.Doctor)))
+{
+@Html.ActionLink("Complete", "Complete", new { id = app.Id }, new
+{
+    @class = "btn btn-secondary disabled"
+})}
+    </td>
+</tr>
+} }
+    else
+    {
+<tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td colspan="2"></td>
+    <td></td>
+    <td colspan="2"></td>
+    <td></td>
+    <td colspan="4"></td>
+</tr>
+}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="13" , align="center">
+                            <pager class="pagination custom-pager" list="@Model" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" asp-route-page="@ViewBag.Page" asp-route-filter="@ViewBag.Filter" asp-route-searchString="@ViewBag.SearchString" asp-controller="Appointment" asp-route-sortOrder="@ViewBag.SortOrder"
+                                   asp-action="GetAll" />
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+
+@section Scripts {
+    <script>
+    $(function () {
+            $('.datepicker').datepicker();
+        })</script>
+
+}

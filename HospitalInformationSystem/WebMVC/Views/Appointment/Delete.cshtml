@@ -1,0 +1,69 @@
+﻿@model DtoEntityProject.AppointmentResponse
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Appointment delete</title>
+</head>
+<body>
+
+    <div class="container-fluid col-6 pt-2">
+        <div class="form-group text-left">
+            <form>
+                <input type="button" class="btn btn-primary" value="Back" onclick="@("window.location.href='" + @Url.Action("GetAll", "Appointment") + "'");">
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h4 class="text-left mb-3">Are you sure that you want to delete this appointment ?</h4>
+                <form asp-controller="Appointment" asp-action="DeleteApp" method="post">
+                    <input type="hidden" asp-for="Id">
+                    <div class="form-group">
+                        <label asp-for="StartTime">Start Time</label>
+                        <input class="form-control" asp-for="StartTime" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EndTime">End Time</label>
+                        <input class="form-control" asp-for="EndTime" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Note">Note</label>
+                        <input class="form-control" asp-for="Note" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Doctor.FirstName">Doctor</label>
+                        <input class="form-control" value="@(String.Format("{0} {1}", Model.Doctor.FirstName, Model.Doctor.LastName))" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Patient">Patient</label>
+                        @if (Model.Patient == null)
+                        {
+            <input class="form-control" value="/" readonly /> }
+        else
+        {
+<input class="form-control" value="@(String.Format("{0} {1}", Model.Patient.FirstName, Model.Patient.LastName))" readonly />}
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Date">Created</label>
+                        <input class="form-control" asp-for="Date" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Completed">Completed</label>
+
+                        @if (@Model.Completed)
+                        {
+            <input class="form-control" type="text" value="Yes" readonly /> }
+                        else
+                        {
+            <input class="form-control" type="text" value="No" readonly />}
+                    </div>
+                    <div class="form-group text-center">
+                        <input type="submit" class="btn btn-danger" value="Delete" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

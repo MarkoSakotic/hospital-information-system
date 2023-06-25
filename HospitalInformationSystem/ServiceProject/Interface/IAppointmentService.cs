@@ -10,8 +10,12 @@ namespace ServiceProject.Interface
     {
         Task<ApiResponse> CreateAppointmentsAsync(AppointmentRequest appointmentRequest);
         Task<ApiResponse> UpdateAppointmentAsync(AppointmentUpdate appointmentUpdate);
+        Task<ApiResponse> CompleteAppointmentAsync(AppointmentComplete appointmentComplete);
+        Task<ApiResponse> ScheduleAppointmentAsync(AppointmentSchedule appointmentSchedule);
+        Task<ApiResponse> GetAllAppointmentsForUserWithinGivenPeriodAsync(AppointmentFilter appointmentFilter);
         Task<ApiResponse> GetAllAppointmentsAsync();
         Task<ApiResponse> GetAppointmentAsync(int id);
         Task<ApiResponse> DeleteAppointmentAsync(int id);
+
     }
 }
