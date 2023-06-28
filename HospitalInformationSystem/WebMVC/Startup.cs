@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using RepositoryProject.Context;
 using ServiceProject.Implementation;
 using ServiceProject.Interface;
+using ServiceProject.Seeder;
 using ServiceProject.Utility;
 using System;
 
@@ -47,6 +48,7 @@ namespace WebMVC
             services.AddScoped<IAppointmentService, AppointmentService>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<JwtParser>();
+            services.AddTransient<TechnicianSeeder>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllersWithViews();
