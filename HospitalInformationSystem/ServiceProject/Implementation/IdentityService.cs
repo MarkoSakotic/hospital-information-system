@@ -77,5 +77,40 @@ namespace ServiceProject.Implementation
             return response;
         }
 
+        public async Task<ApiResponse> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
+        {
+            var id = _jwtParser.GetIdFromJWT();
+            var role = _jwtParser.GetRoleFromJWT();
+            var response = new ApiResponse();
+            response.Roles.Add(role);
+            var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+            if (user == null || user.Id != id)
+            {
+                response.Errors.Add($"Unable to change password for user with email: {resetPasswordDto.Email}");
+                return response;
+            }
+            if (user.Password == resetPasswordDto.OldPassword)
+            {
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                try
+                {
+                    if ((await _userManager.ResetPasswordAsync(user, code, resetPasswordDto.NewPassword)).Succeeded)
+                    {
+                        user.Password = resetPasswordDto.NewPassword;
+                        await _userManager.UpdateAsync(user);
+                        response.Result = $"Password has been reseted successfully.";
+                        return response;
+                    }
+                }
+                catch (Exception e)
+                {
+                    response.Errors.Add(e.Message);
+                    return response;
+                }
+            }
+            response.Errors.Add("You have entered wrong old password.");
+            return response;
+        }
+
     }
 }

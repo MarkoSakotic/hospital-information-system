@@ -9,5 +9,6 @@ namespace ServiceProject.Interface
     public interface IIdentityService
     {
         Task<ApiResponse> LoginAsync(LoginRequest request);
+        Task<ApiResponse> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
     }
 }
