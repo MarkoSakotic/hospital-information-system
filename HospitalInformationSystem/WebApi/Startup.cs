@@ -17,6 +17,7 @@ using RepositoryProject.Context;
 using ServiceProject.Implementation;
 using ServiceProject.Interface;
 using ServiceProject.Seeder;
+using ServiceProject.TokenGenerator;
 using ServiceProject.Utility;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -75,6 +76,8 @@ namespace WebApi
             services.AddTransient<IDoctorService, DoctorService>();
             services.AddTransient<IIdentityService, IdentityService>();
             services.AddTransient<IAppointmentService, AppointmentService>();
+            services.AddTransient<ITokenGenerator, TokenGenerator>();
+
             services.AddTransient<TechnicianSeeder>();
             services.AddTransient<JwtParser>();
 

@@ -4,6 +4,7 @@ using DtoEntityProject.Constants;
 using EntityProject;
 using Microsoft.AspNetCore.Identity;
 using ServiceProject.Interface;
+using ServiceProject.TokenGenerator;
 using ServiceProject.Utility;
 using System;
 using System.Linq;
@@ -14,13 +15,15 @@ namespace ServiceProject.Implementation
     public class IdentityService : IIdentityService
     {
         private readonly UserManager<ApiUser> _userManager;
+        private readonly ITokenGenerator _tokenGenerator;
         private readonly JwtParser _jwtParser;
         private IMapper _mapper;
 
         public IdentityService(UserManager<ApiUser> userManager,
-            JwtParser jwtParser, IMapper mapper)
+            ITokenGenerator tokenGenerator, JwtParser jwtParser, IMapper mapper)
         {
             _userManager = userManager;
+            _tokenGenerator = tokenGenerator;
             _jwtParser = jwtParser;
             _mapper = mapper;
         }
@@ -74,6 +77,7 @@ namespace ServiceProject.Implementation
                 response.Result = _mapper.Map<PatientResponse>(user);
             if (role[0] == Constants.Doctor)
                 response.Result = _mapper.Map<DoctorResponse>(user);
+            response.Token = await _tokenGenerator.GenerateToken(user.Email, user.Id);
             return response;
         }
 
@@ -111,6 +115,5 @@ namespace ServiceProject.Implementation
             response.Errors.Add("You have entered wrong old password.");
             return response;
         }
-
     }
 }
