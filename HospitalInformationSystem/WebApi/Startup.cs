@@ -18,6 +18,7 @@ using ServiceProject.Implementation;
 using ServiceProject.Interface;
 using ServiceProject.Seeder;
 using ServiceProject.Utility;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace WebApi
 {
@@ -61,11 +62,12 @@ namespace WebApi
             Configuration.GetSection(nameof(JwtSettings)).Bind(jwtSettings);
             services.AddSingleton(jwtSettings);
 
-
+            services.ConfigureAuthentication(jwtSettings);
             services.AddAuthorization();
             services.AddDbContext<HISContext>(options => options.UseSqlServer(Configuration.GetConnectionString("HISConnection")));
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.ConfigureSwagger();
             services.AddControllers()
                 .AddNewtonsoftJson(cfg => cfg.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
@@ -86,14 +88,29 @@ namespace WebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            var swaggerOptions = new DtoEntityProject.Configuration.SwaggerOptions();
+            Configuration.GetSection(nameof(DtoEntityProject.Configuration.SwaggerOptions)).Bind(swaggerOptions);
+
+            app.UseSwagger(options => { options.RouteTemplate = swaggerOptions.RouteTemplate; });
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint(swaggerOptions.UIEndpoint, swaggerOptions.Description);
+            });
+
             app.UseRouting();
+            app.UseCors("default");
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllers();
+                /*
                 endpoints.MapGet("/", async context =>
                 {
                     await context.Response.WriteAsync("Hello World!");
-                });
+                });*/
             });
         }
     }
