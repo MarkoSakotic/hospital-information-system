@@ -12,16 +12,11 @@ namespace WebMVC.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IPatientService _patientService;
-        private readonly IDoctorService _doctorService;
-        private readonly UserManager<ApiUser> _userManager;
         private readonly SignInManager<ApiUser> _signInManager;
 
         public AccountController(IPatientService patientService, UserManager<ApiUser> userManager, SignInManager<ApiUser> signInManager, IDoctorService doctorService)
         {
-            _patientService = patientService;
-            _doctorService = doctorService;
-            _userManager = userManager;
+
             _signInManager = signInManager;
         }
 

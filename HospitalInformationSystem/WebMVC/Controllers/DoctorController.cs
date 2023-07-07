@@ -50,7 +50,7 @@ namespace WebMVC.Controllers
                     doctors = doctors.Where(d => d.FirstName.ToLower().StartsWith(searchString.ToLower())
                                            || d.LastName.ToLower().StartsWith(searchString.ToLower()));
                 }
-                if (doctors.Count() != 0)
+                if (doctors.Any())
                 {
                     switch (sortOrder)
                     {
@@ -114,7 +114,7 @@ namespace WebMVC.Controllers
         {
             var response = await _doctorService.AddAsync(doctorRequest);
 
-            if (response.Errors.Count() != 0)
+            if (response.Errors.Any())
             {
                 TempData["error"] = response.Errors.FirstOrDefault();
                 return RedirectToAction("Add");
@@ -152,7 +152,7 @@ namespace WebMVC.Controllers
             {
                 var response = await _doctorService.UpdateAsync(doctorUpdate);
 
-                if (response.Errors.Count() != 0)
+                if (response.Errors.Any())
                 {
                     TempData["error"] = response.Errors.FirstOrDefault();
 
@@ -200,7 +200,7 @@ namespace WebMVC.Controllers
                     doctors = doctors.Where(d => d.FirstName.ToLower().StartsWith(searchString.ToLower())
                                            || d.LastName.ToLower().StartsWith(searchString.ToLower()));
                 }
-                if (doctors.Count() != 0)
+                if (doctors.Any())
                 {
                     switch (sortOrder)
                     {

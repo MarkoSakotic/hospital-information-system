@@ -20,15 +20,13 @@ namespace WebMVC.Controllers
         private readonly IAppointmentService _appointmentService;
         private readonly IPatientService _patientService;
         private readonly IDoctorService _doctorService;
-        private readonly IMapper _mapper;
         private readonly JwtParser _jwtParser;
 
-        public AppointmentController(IAppointmentService appointmentService, IPatientService patientService, IMapper mapper, IDoctorService doctorService, JwtParser jwtParser)
+        public AppointmentController(IAppointmentService appointmentService, IPatientService patientService, IDoctorService doctorService, JwtParser jwtParser)
         {
             _appointmentService = appointmentService;
             _patientService = patientService;
             _doctorService = doctorService;
-            _mapper = mapper;
             _jwtParser = jwtParser;
         }
 
@@ -173,7 +171,7 @@ namespace WebMVC.Controllers
                         appointments = appointments.Where(s => s.Patient.FirstName.ToLower().StartsWith(searchString.ToLower())
                                                || s.Patient.LastName.ToLower().StartsWith(searchString.ToLower()));
                     }
-                    if (appointments.Count() == 0)
+                    if (!appointments.Any())
                     {
                         ViewBag.Errors = "There is no appointments for given filter.";
                         ViewBag.SearchString = null;
@@ -191,13 +189,13 @@ namespace WebMVC.Controllers
                         appointments = appointments.Where(a => a.Note == "Coffee Break");
                         break;
                     case "Free":
-                        appointments = appointments.Where(a => a.PatientId == null && a.Completed == false);
+                        appointments = appointments.Where(a => a.PatientId == null && !a.Completed);
                         break;
                     case "Completed":
-                        appointments = appointments.Where(a => a.Completed == true);
+                        appointments = appointments.Where(a => a.Completed);
                         break;
                     case "NotCompleted":
-                        appointments = appointments.Where(a => a.Completed == false && a.PatientId != null);
+                        appointments = appointments.Where(a => !a.Completed && a.PatientId != null);
                         break;
                     case "NoFilter":
                         appointments = noFilterList;
@@ -209,7 +207,7 @@ namespace WebMVC.Controllers
 
 
 
-                if (appointments.Count() == 0)
+                if (!appointments.Any())
                 {
                     ViewBag.Errors = "There is no appointments for given filter.";
                     appointments = apps;
@@ -270,7 +268,7 @@ namespace WebMVC.Controllers
                 ViewBag.StartDate = startDate;
                 ViewBag.EndDate = endDate;
 
-                if (appointments.Count() != 0)
+                if (appointments.Any())
                 {
                     model = new PagedList<AppointmentResponse>(appointments.AsQueryable(), page, pageSize);
                     return View(model);
@@ -319,7 +317,7 @@ namespace WebMVC.Controllers
 
             var doctorId = (response.Result as IEnumerable<AppointmentResponse>).FirstOrDefault().DoctorId;
 
-            if (response.Errors.Count() != 0)
+            if (response.Errors.Any())
             {
                 if (response.Result == null)
                 {
@@ -406,7 +404,7 @@ namespace WebMVC.Controllers
 
                     appointments = appointments.Where(s => s.Doctor.FirstName.ToLower().StartsWith(searchString.ToLower())
                                                     || s.Doctor.LastName.ToLower().StartsWith(searchString.ToLower()));
-                    if (appointments.Count() == 0)
+                    if (!appointments.Any())
                     {
                         ViewBag.Errors = "There is no appointments for given filter.";
                         ViewBag.SearchString = null;
@@ -414,7 +412,7 @@ namespace WebMVC.Controllers
                     }
 
                 }
-                if (appointments.Count() != 0)
+                if (appointments.Any())
                 {
                     ViewBag.PatientName = patient.FirstName + " " + patient.LastName;
                     ViewBag.PatientId = patient.Id;
@@ -423,10 +421,10 @@ namespace WebMVC.Controllers
                     switch (filter)
                     {
                         case "Completed":
-                            appointments = appointments.Where(a => a.Completed == true);
+                            appointments = appointments.Where(a => a.Completed);
                             break;
                         case "NotCompleted":
-                            appointments = appointments.Where(a => a.Completed == false);
+                            appointments = appointments.Where(a => !a.Completed);
                             break;
                         case "NoFilter":
                             appointments = noFilterList;
@@ -436,7 +434,7 @@ namespace WebMVC.Controllers
                             break;
                     }
 
-                    if (appointments.Count() == 0)
+                    if (!appointments.Any())
                     {
                         ViewBag.Errors = "There is no appointments for given filter.";
                         appointments = apps;
@@ -649,7 +647,7 @@ namespace WebMVC.Controllers
             };
 
 
-            var response = (await _appointmentService.ScheduleAppointmentAsync(app)) as ApiResponse;
+            var response = await _appointmentService.ScheduleAppointmentAsync(app);
             if (response.Result == null)
             {
                 return RedirectToAction("GetAll", (await _appointmentService.GetAllAppointmentsAsync()).Result);
@@ -738,7 +736,6 @@ namespace WebMVC.Controllers
                 if (TempData["create"] != null)
                 {
                     var result = (await _appointmentService.GetAllAppointmentsForUserWithinGivenPeriodAsync(new AppointmentFilter() { StartDate = DateTime.Parse(startDate), EndDate = DateTime.Parse(endDate), UserId = null })).Result as IEnumerable<AppointmentResponse>;
-                    var apps = result.Where(a => a.DoctorId == doctorId);
                 }
                 else
                 {
@@ -752,7 +749,7 @@ namespace WebMVC.Controllers
                         var temp = appointments;
                         appointments = (result.Result) as IEnumerable<AppointmentResponse>;
                         appointments = appointments.Where(a => a.StartTime.AddHours(-1) >= DateTime.Now);
-                        if (appointments.Count() == 0)
+                        if (!appointments.Any())
                         {
                             ViewBag.Errors = "Appointments in past cannot be scheduled.";
                             appointments = temp;
@@ -760,102 +757,95 @@ namespace WebMVC.Controllers
                     }
                 }
             }
-            if (appointments != null)
+            if (appointments != null && appointments.Any())
             {
-                if (appointments.Count() != 0)
+                ViewBag.DoctorName = appointments.First().Doctor.FirstName + " " + appointments.First().Doctor.LastName;
+                ViewBag.DoctorId = appointments.First().DoctorId;
+
+                if (TempData["create"] != null)
                 {
-                    ViewBag.DoctorName = appointments.First().Doctor.FirstName + " " + appointments.First().Doctor.LastName;
-                    ViewBag.DoctorId = appointments.First().DoctorId;
-
-                    if (TempData["create"] != null)
-                    {
-                        //DateTime? start = TempData["startDate"] as DateTime?;
-                        //DateTime? end = TempData["endDate"] as DateTime?;
-                        DateTime? startTime = TempData["startTime"] as DateTime?;
-                        DateTime? endTime = TempData["endTime"] as DateTime?;
-                        appointments = appointments.Where(a => a.StartTime >= startTime.Value && a.StartTime <= endTime.Value);
-                        TempData["create"] = true;
-                        //TempData["startDate"] = start;
-                        //TempData["endDate"] = end;
-                        TempData["startTime"] = startTime;
-                        TempData["endTime"] = endTime;
-                    }
-                    else
-                    {
-                        appointments = appointments.Where(a => a.Completed == false).ToList();
-                    }
-                    var apps = appointments;
-                    switch (filter)
-                    {
-                        case "Scheduled":
-                            appointments = appointments.Where(a => a.PatientId != null);
-                            break;
-                        case "Coffee":
-                            appointments = appointments.Where(a => a.Note == "Coffee Break");
-                            break;
-                        case "Free":
-                            appointments = appointments.Where(a => a.PatientId == null && a.Completed == false);
-                            break;
-                        case "NoFilter":
-                            appointments = noFilterList;
-                            ViewData["searchString"] = null;
-                            break;
-                        default:
-                            break;
-
-                    }
-                    if (appointments.Count() == 0)
-                    {
-                        ViewBag.Errors = "There is no appointments for given filter.";
-                        appointments = apps;
-                    }
-
-                    switch (sortOrder)
-                    {
-                        case "date_desc":
-                            appointments = appointments.OrderByDescending(s => s.StartTime);
-                            break;
-                        case "patient_desc":
-                            var sortDesc = appointments.Where(a => a.Patient != null).OrderByDescending(a => a.Patient.FirstName).ToList();
-                            sortDesc.AddRange(appointments.Where(a => a.Patient == null).ToList());
-                            appointments = sortDesc;
-                            break;
-                        case "Patient":
-                            var sortAsc = appointments.Where(a => a.Patient != null).OrderBy(a => a.Patient.FirstName).ToList();
-                            sortAsc.AddRange(appointments.Where(a => a.Patient == null));
-                            appointments = sortAsc;
-                            break;
-                        case "createdOn_desc":
-                            appointments = appointments.OrderByDescending(s => s.Date);
-                            break;
-                        case "CreatedOn":
-                            appointments = appointments.OrderBy(s => s.Date);
-                            break;
-                        case "note_desc":
-                            var sortNoteDesc = appointments.Where(a => a.Note != "").OrderByDescending(a => a.Note).ToList();
-                            sortNoteDesc.AddRange(appointments.Where(a => a.Note == "" || a.Note == null).ToList());
-                            appointments = sortNoteDesc;
-                            break;
-                        case "Note":
-                            var sortNoteAsc = appointments.Where(a => a.Note != "").OrderBy(a => a.Note).ToList();
-                            sortNoteAsc.AddRange(appointments.Where(a => a.Note == "" || a.Note == null));
-                            appointments = sortNoteAsc;
-                            break;
-                        default:
-                            appointments = appointments.OrderBy(s => s.StartTime);
-                            break;
-                    }
-
-                    startDate = appointments.Min(a => a.StartTime).ToString("yyyy-MM-dd");
-                    endDate = appointments.Max(a => a.StartTime).ToString("yyyy-MM-dd");
-                    ViewData["startDate"] = startDate;
-                    ViewData["endDate"] = endDate;
-                    ViewBag.StartDate = startDate;
-                    ViewBag.EndDate = endDate;
-
-                    model = new PagedList<AppointmentResponse>(appointments.AsQueryable(), page, pageSize);
-                    return View(model);
+                    DateTime? startTime = TempData["startTime"] as DateTime?;
+                    DateTime? endTime = TempData["endTime"] as DateTime?;
+                    appointments = appointments.Where(a => a.StartTime >= startTime.Value && a.StartTime <= endTime.Value);
+                    TempData["create"] = true;
+                    TempData["startTime"] = startTime;
+                    TempData["endTime"] = endTime;
                 }
+                else
+                {
+                    appointments = appointments.Where(a => !a.Completed).ToList();
+                }
+                var apps = appointments;
+                switch (filter)
+                {
+                    case "Scheduled":
+                        appointments = appointments.Where(a => a.PatientId != null);
+                        break;
+                    case "Coffee":
+                        appointments = appointments.Where(a => a.Note == "Coffee Break");
+                        break;
+                    case "Free":
+                        appointments = appointments.Where(a => a.PatientId == null && !a.Completed);
+                        break;
+                    case "NoFilter":
+                        appointments = noFilterList;
+                        ViewData["searchString"] = null;
+                        break;
+                    default:
+                        break;
+
+                }
+                if (!appointments.Any())
+                {
+                    ViewBag.Errors = "There is no appointments for given filter.";
+                    appointments = apps;
+                }
+
+                switch (sortOrder)
+                {
+                    case "date_desc":
+                        appointments = appointments.OrderByDescending(s => s.StartTime);
+                        break;
+                    case "patient_desc":
+                        var sortDesc = appointments.Where(a => a.Patient != null).OrderByDescending(a => a.Patient.FirstName).ToList();
+                        sortDesc.AddRange(appointments.Where(a => a.Patient == null).ToList());
+                        appointments = sortDesc;
+                        break;
+                    case "Patient":
+                        var sortAsc = appointments.Where(a => a.Patient != null).OrderBy(a => a.Patient.FirstName).ToList();
+                        sortAsc.AddRange(appointments.Where(a => a.Patient == null));
+                        appointments = sortAsc;
+                        break;
+                    case "createdOn_desc":
+                        appointments = appointments.OrderByDescending(s => s.Date);
+                        break;
+                    case "CreatedOn":
+                        appointments = appointments.OrderBy(s => s.Date);
+                        break;
+                    case "note_desc":
+                        var sortNoteDesc = appointments.Where(a => a.Note != "").OrderByDescending(a => a.Note).ToList();
+                        sortNoteDesc.AddRange(appointments.Where(a => a.Note == "" || a.Note == null).ToList());
+                        appointments = sortNoteDesc;
+                        break;
+                    case "Note":
+                        var sortNoteAsc = appointments.Where(a => a.Note != "").OrderBy(a => a.Note).ToList();
+                        sortNoteAsc.AddRange(appointments.Where(a => a.Note == "" || a.Note == null));
+                        appointments = sortNoteAsc;
+                        break;
+                    default:
+                        appointments = appointments.OrderBy(s => s.StartTime);
+                        break;
+                }
+
+                startDate = appointments.Min(a => a.StartTime).ToString("yyyy-MM-dd");
+                endDate = appointments.Max(a => a.StartTime).ToString("yyyy-MM-dd");
+                ViewData["startDate"] = startDate;
+                ViewData["endDate"] = endDate;
+                ViewBag.StartDate = startDate;
+                ViewBag.EndDate = endDate;
+
+                model = new PagedList<AppointmentResponse>(appointments.AsQueryable(), page, pageSize);
+                return View(model);
             }
             var doctor = (await _doctorService.GetAsync(doctorId)).Result as DoctorResponse;
             ViewBag.DoctorName = doctor.FirstName + " " + doctor.LastName;
@@ -889,7 +879,7 @@ namespace WebMVC.Controllers
             ViewData["NoteSortParm"] = sortOrder == "Note" ? "note_desc" : "Note";
             ViewData["filter"] = filter;
             ViewData["searchString"] = searchString;
-            if (startDate == null && endDate == null && appointments.Count() != 0)
+            if (startDate == null && endDate == null && appointments.Any())
             {
                 startDate = appointments.Min(a => a.StartTime).ToString("yyyy-MM-dd");
                 endDate = appointments.Max(a => a.StartTime).ToString("yyyy-MM-dd");
@@ -955,7 +945,7 @@ namespace WebMVC.Controllers
                         var temp = appointments;
                         appointments = (result.Result) as IEnumerable<AppointmentResponse>;
                         appointments = appointments.Where(a => a.StartTime.AddHours(-1) >= DateTime.Now);
-                        if (appointments.Count() == 0)
+                        if (!appointments.Any())
                         {
                             ViewBag.Errors = "Appointments in past cannot be scheduled.";
                             appointments = temp;
@@ -968,14 +958,14 @@ namespace WebMVC.Controllers
                     var temp = appointments;
                     appointments = appointments.Where(s => s.Doctor.FirstName.ToLower().StartsWith(searchString.ToLower())
                                            || s.Doctor.LastName.ToLower().StartsWith(searchString.ToLower()));
-                    if (appointments.Count() == 0)
+                    if (!appointments.Any())
                     {
                         ViewBag.Errors = "There is no appointments for given filter.";
                         ViewBag.SearchString = null;
                         appointments = temp;
                     }
                 }
-                if (appointments.Count() != 0)
+                if (appointments.Any())
                 {
                     ViewBag.PatientName = patient.FirstName + " " + patient.LastName;
                     ViewBag.PatientId = patient.Id;
@@ -989,7 +979,7 @@ namespace WebMVC.Controllers
                             appointments = appointments.Where(a => a.Note == "Coffee Break");
                             break;
                         case "Free":
-                            appointments = appointments.Where(a => a.PatientId == null && a.Completed == false);
+                            appointments = appointments.Where(a => a.PatientId == null && !a.Completed);
                             break;
                         case "NoFilter":
                             appointments = noFilterList;
@@ -1000,7 +990,7 @@ namespace WebMVC.Controllers
                             break;
                     }
 
-                    if (appointments.Count() == 0)
+                    if (!appointments.Any())
                     {
                         ViewBag.Errors = "There is no appointments for given filter.";
                         appointments = apps;
@@ -1080,7 +1070,7 @@ namespace WebMVC.Controllers
             AppointmentComplete request = new AppointmentComplete();
             request.AppointmentId = id;
             request.Note = app.Note;
-            List<PatientResponse> patients = (await _patientService.GetAllAsync()).Result as List<PatientResponse>;
+            _ = (await _patientService.GetAllAsync()).Result as List<PatientResponse>;
             ViewBag.Appointment = app;
             return View(request);
         }

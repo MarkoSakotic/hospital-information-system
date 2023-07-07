@@ -41,7 +41,6 @@ namespace WebApi
 
             services.AddCors(options =>
             {
-                //options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
                 // this defines a CORS policy called "default"
                 options.AddPolicy("default", policy =>
                 {

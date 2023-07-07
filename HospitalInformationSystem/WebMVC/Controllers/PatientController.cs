@@ -44,7 +44,7 @@ namespace WebMVC.Controllers
         {
             var response = await _patientService.AddAsync(patientRequest);
 
-            if (response.Errors.Count() != 0)
+            if (response.Errors.Any())
             {
                 TempData["error"] = response.Errors.FirstOrDefault();
                 return RedirectToAction("Add");
@@ -71,7 +71,7 @@ namespace WebMVC.Controllers
                     patients = patients.Where(d => d.FirstName.ToLower().StartsWith(searchString.ToLower())
                                            || d.LastName.ToLower().StartsWith(searchString.ToLower()));
                 }
-                if (patients.Count() != 0)
+                if (patients.Any())
                 {
                     switch (sortOrder)
                     {
@@ -117,7 +117,7 @@ namespace WebMVC.Controllers
             {
                 var response = await _patientService.UpdateAsync(patientUpdate);
 
-                if (response.Errors.Count() != 0)
+                if (response.Errors.Any())
                 {
                     TempData["error"] = response.Errors.FirstOrDefault();
 
