@@ -30,13 +30,11 @@ namespace TestsProject.Service
         private readonly PatientFixture _patientFixture;
         private readonly DoctorFixture _doctorFixture;
         private readonly PatientResponseFixture _patientResponseFixture;
-        private readonly AppointmentFixture _appointmentFixture;
         private readonly Mock<JwtParser> _jwtParserMock;
         private readonly UserManager<ApiUser> _userManager;
 
-        public PatientServiceTests(PatientFixture patientFixture, PatientResponseFixture patientResponseFixture, DoctorFixture doctorFixture, AppointmentFixture appointmentFixture)
+        public PatientServiceTests(PatientFixture patientFixture, PatientResponseFixture patientResponseFixture, DoctorFixture doctorFixture)
         {
-            //var serviceProvider = BuildTestServiceProvider();
             _mapperMock = new Mock<IMapper>();
             _contextTest = TestContextFactory.CreateInMemoryHisContext();
             _jwtParserMock = new Mock<JwtParser>();
@@ -44,16 +42,12 @@ namespace TestsProject.Service
             _patientFixture = patientFixture;
             _patientResponseFixture = patientResponseFixture;
             _doctorFixture = doctorFixture;
-            _appointmentFixture = appointmentFixture;
             _userManager = new UserManager<ApiUser>(new UserStore<ApiUser>(_contextTest), null, null, null, null, null, null, null, null);
         }
 
         private static IServiceProvider BuildServiceProviderTest()
         {
             var services = new ServiceCollection();
-            var configuration = TestingConfigurationBuilder.BuildConfiguration();
-
-            //services.Configure<HisConfiguration>(configuration.GetSection("HISConnection"));
 
             services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
                 ServiceLifetime.Scoped,
@@ -61,42 +55,7 @@ namespace TestsProject.Service
 
             return services.BuildServiceProvider();
         }
-        /*
-        [Fact]
-        public async Task PatientServiceTests_AddAsync_ShouldReturnPatientResponseInApiResponse()
-        {
-            //arrange
-            PatientRequest request = new PatientRequest
-            {
-                Email = "email@gmail.com",
-                Address = "aaa",
-                Phone = "sdasddsad",
-                Password = "P@ssw0rd",
-                DateOfBirth = DateTime.Now,
-                SSN = "sadsadsad",
-                FirstName = "das",
-                LastName = "dsa"
-            };
-            var response = _patientResponseFixture.Generate();
-            var patient = _patientFixture.Generate();
-            _mapperMock.Setup(x => x.Map<Patient>(It.IsAny<PatientRequest>()))
-                 .Returns(patient);
-            _mapperMock.Setup(x => x.Map<PatientResponse>(It.IsAny<Patient>()))
-                 .Returns(response);
-            _jwtParserMock.Setup(x => x.GetRoleFromJWT())
-                .Returns(Constants.Technician);
-
-            var sut = GenerateSut();
-
-            //act
-            var result = await sut.AddAsync(request);
-
-            //assert
-            result.Should().BeOfType(typeof(ApiResponse));
-            result.Result.Should().BeOfType(typeof(PatientResponse));
-            result.Result.Should().BeSameAs(response);
-        }
-        */
+        
         [Fact]
         public async Task PatientServiceTests_UpdatePatientAsync_ShouldReturnPatientResponseInApiResponse()
         {
@@ -326,21 +285,7 @@ namespace TestsProject.Service
         {
             return new PatientService(_userManager, _contextTest, _mapperMock.Object, _jwtParserMock.Object);
         }
-        /*private IServiceProvider BuildTestServiceProvider()
-        {
-            //var configuration = TestingConfigurationBuilder.BuildConfiguration();
-            var services = new ServiceCollection();
 
-            var testingConfiguration = TestingConfigurationBuilder.GetTestConfiguration();
-
-            services.Configure<HisConfiguration>(testingConfiguration.GetSection("HISConnection"));
-
-            services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
-                ServiceLifetime.Scoped,
-                ServiceLifetime.Scoped);
-
-            return services.BuildServiceProvider();
-        }*/
     }
 
 }

@@ -36,7 +36,6 @@ namespace TestsProject.Service
 
         public DoctorServiceTests(PatientFixture patientFixture, DoctorResponseFixture doctorResponseFixture, DoctorFixture doctorFixture)
         {
-            var serviceProvider = BuildTestServiceProvider();
             _mapperMock = new Mock<IMapper>();
             _contextTest = TestContextFactory.CreateInMemoryHisContext();
             _jwtParserMock = new Mock<JwtParser>();
@@ -49,9 +48,6 @@ namespace TestsProject.Service
         private static IServiceProvider BuildServiceProviderTest()
         {
             var services = new ServiceCollection();
-            var configuration = TestingConfigurationBuilder.BuildConfiguration();
-
-            //services.Configure<HisConfiguration>(configuration.GetSection("HISConnection"));
 
             services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
                 ServiceLifetime.Scoped,
@@ -294,37 +290,6 @@ namespace TestsProject.Service
             return new DoctorService(_contextTest, _mapperMock.Object, _userManager, _jwtParserMock.Object);
         }
 
-        private IServiceProvider BuildTestServiceProvider()
-        {
-            //var configuration = TestingConfigurationBuilder.BuildConfiguration();
-            var services = new ServiceCollection();
-
-
-            //var settings = new HisConfiguration { HisConnection = "http://dummy.com" };
-            //var options = Options.Create(settings);
-
-            //var configForSmsApi = new Dictionary<string, string>
-            //    {
-            //        {"ConnectionStrings:HisConnection", "http://example.com"},
-            //    };
-
-            //var configuration1 = new ConfigurationBuilder()
-            //    .AddJsonFile("smsapi.json", optional: false)
-            //    .Build();
-
-            //services.Configure<HisConfiguration>(configuration.GetSection("HISConnection"));
-
-
-            var testingConfiguration = TestingConfigurationBuilder.GetTestConfiguration();
-
-            //services.Configure<HisConfiguration>(testingConfiguration.GetSection("HISConnection"));
-
-            services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
-                ServiceLifetime.Scoped,
-                ServiceLifetime.Scoped);
-
-            return services.BuildServiceProvider();
-        }
     }
 
 }

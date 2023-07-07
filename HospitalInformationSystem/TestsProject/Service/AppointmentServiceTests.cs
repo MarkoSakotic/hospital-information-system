@@ -32,7 +32,6 @@ namespace TestsProject.Service
 
         public AppointmentServiceTests(AppointmentFixture appointmentFixture, AppointmentResponseFixture appointmentResponseFixture, AppointmentFilterFixture appointmentFilterFixture)
         {
-            var serviceProvider = BuildTestServiceProvider();
             _mapperMock = new Mock<IMapper>();
             _contextTest = TestContextFactory.CreateInMemoryHisContext();
             _jwtParserMock = new Mock<JwtParser>();
@@ -58,11 +57,8 @@ namespace TestsProject.Service
                 .Select(a => _appointmentResponseFixture.Generate())
                 .ToList()
                 .AsEnumerable();
-            var appointments = Enumerable.Range(0, 3)
-                .Select(a => _appointmentFixture.Generate())
-                .ToList();
             _mapperMock.Setup(x => x.Map<IEnumerable<AppointmentResponse>>(It.IsAny<IEnumerable<Appointment>>()))
-                 .Returns((IEnumerable<AppointmentResponse>)appointmentResponse);
+                 .Returns(appointmentResponse);
             var sut = GenerateSut();
 
             //act
@@ -147,9 +143,6 @@ namespace TestsProject.Service
             //arrange
             var appointmentsResponse = Enumerable.Range(0, 5)
                 .Select(p => _appointmentResponseFixture.Generate())
-                .ToList();
-            var appointments = Enumerable.Range(0, 5)
-                .Select(p => _appointmentFixture.Generate())
                 .ToList();
             _mapperMock.Setup(x => x.Map<IEnumerable<AppointmentResponse>>(It.IsAny<IEnumerable<Appointment>>()))
                 .Returns(appointmentsResponse);
@@ -276,14 +269,13 @@ namespace TestsProject.Service
         public async Task AppointmentServiceTests_GetAllAppointmentsForUserWithinGivenPeriodAsyncForPatient_ShouldReturnAppointmensInApiResponse()
         {
             //arrange
-            var appointment = _appointmentFixture.Generate();
             var appointmentFilter = _appointmentFilterFixture.Generate();
 
             _contextTest.Appointments.AddRange(new Appointment { PatientId = appointmentFilter.UserId, StartTime = appointmentFilter.StartDate, EndTime = appointmentFilter.EndDate });
 
             var appointmentsResponse = Enumerable.Range(0, 10)
                                                  .Select(p => _appointmentResponseFixture.Generate())
-                                                 .ToList();//_appointmentResponseFixture.Generate();
+                                                 .ToList();
             _jwtParserMock.Setup(x => x.GetRoleFromJWT())
                 .Returns(Constants.Patient);
 
@@ -306,7 +298,6 @@ namespace TestsProject.Service
         public async Task AppointmentServiceTests_GetAllAppointmentsForUserWithinGivenPeriodAsyncForDoctor_ShouldReturnAppointmensInApiResponse()
         {
             //arrange
-            var appointment = _appointmentFixture.Generate();
             var appointmentFilter = _appointmentFilterFixture.Generate();
 
             _contextTest.Appointments.AddRange(new Appointment { DoctorId = appointmentFilter.UserId, StartTime = appointmentFilter.StartDate, EndTime = appointmentFilter.EndDate });
@@ -337,11 +328,6 @@ namespace TestsProject.Service
         {
             //arrange
             var appointment = _appointmentFilterFixture.Generate();
-            var appointmentsResponse = Enumerable.Range(0, 10)
-                                                 .Select(p => _appointmentResponseFixture.Generate())
-                                                 .ToList();
-            //_mapperMock.Setup(x => x.Map<IEnumerable<AppointmentResponse>>(It.IsAny<IEnumerable<Appointment>>()))
-            //    .Returns(appointmentsResponse);
             var sut = GenerateSut();
 
             //act
@@ -355,9 +341,6 @@ namespace TestsProject.Service
         private static IServiceProvider BuildServiceProviderTest()
         {
             var services = new ServiceCollection();
-            var configuration = Common.TestingConfigurationBuilder.BuildConfiguration();
-
-            //services.Configure<HisConfiguration>(configuration.GetSection("HISConnection"));
 
             services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
                 ServiceLifetime.Scoped,
@@ -387,20 +370,6 @@ namespace TestsProject.Service
             return new AppointmentService(_contextTest, _mapperMock.Object, _jwtParserMock.Object);
         }
 
-        private IServiceProvider BuildTestServiceProvider()
-        {
-            var services = new ServiceCollection();
-
-            var testingConfiguration = Common.TestingConfigurationBuilder.GetTestConfiguration();
-
-            //services.Configure<HisConfiguration>(testingConfiguration.GetSection("HISConnection"));
-
-            services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
-                ServiceLifetime.Scoped,
-                ServiceLifetime.Scoped);
-
-            return services.BuildServiceProvider();
-        }
     }
 
 }

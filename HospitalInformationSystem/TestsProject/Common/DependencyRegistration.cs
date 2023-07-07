@@ -11,7 +11,6 @@ namespace TestsProject.Common
         public static IConfigurationRoot BuildConfiguration()
         {
             var testingConfiguration = GetTestingConfiguration();
-            //var testingConfiguration = GetTestConfiguration();
 
             var serialized = JsonConvert.SerializeObject(testingConfiguration);
             var configurationBuilder = new ConfigurationBuilder();

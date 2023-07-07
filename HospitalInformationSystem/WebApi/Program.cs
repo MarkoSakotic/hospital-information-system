@@ -18,11 +18,7 @@ namespace WebApi
             try
             {
                 var host = CreateHostBuilder(args).Build();
-                //using (var serviceScope = host.Services.CreateScope())
-                //{
-                //    var dbContext = serviceScope.ServiceProvider.GetRequiredService<HisContext>();
-                //    dbContext.Database.Migrate();
-                //}
+
                 using (var serviceScope = host.Services.CreateScope())
                 {
                     var dataSeeder = serviceScope.ServiceProvider.GetService<TechnicianSeeder>();
@@ -32,7 +28,7 @@ namespace WebApi
             }
             catch (System.Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
             }
         }
 

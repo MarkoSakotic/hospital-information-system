@@ -16,7 +16,6 @@ namespace TestsProject.Common
                .Options;
 
             return new HisContext(options);
-            //return new HisContext(null);
         }
 
 

@@ -100,7 +100,7 @@ namespace WebApi.Controllers
             }
             else
             {
-                response.Errors.AddRange((IEnumerable<string>)ModelState.Values.SelectMany(e => e.Errors));
+                response.Errors.AddRange(ModelState.Values.SelectMany(e => e.Errors) as IEnumerable<string>);
                 return BadRequest(ModelState);
             }
         }
@@ -180,7 +180,7 @@ namespace WebApi.Controllers
             }
             else
             {
-                response.Errors.AddRange((IEnumerable<string>)ModelState.Values.SelectMany(e => e.Errors));
+                response.Errors.AddRange(ModelState.Values.SelectMany(e => e.Errors) as IEnumerable<string>);
                 return BadRequest(ModelState);
             }
         }
@@ -386,7 +386,7 @@ namespace WebApi.Controllers
             try
             {
                 response = await _doctorService.DeleteAsync(id);
-                if (response.Errors.Count() != 0)
+                if (response.Errors.Any())
                 {
                     return NotFound(response);
                 }
