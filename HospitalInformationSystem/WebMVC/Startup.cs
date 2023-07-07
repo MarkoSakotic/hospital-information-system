@@ -32,10 +32,10 @@ namespace WebMVC
             services.AddIdentity<ApiUser, IdentityRole>(cfg =>
             {
                 cfg.User.RequireUniqueEmail = true;
-            }).AddEntityFrameworkStores<HISContext>();
+            }).AddEntityFrameworkStores<HisContext>();
 
             services.Configure<HisConfiguration>(Configuration.GetSection("ConnectionStrings"));
-            services.AddDbContext<HISContext>(
+            services.AddDbContext<HisContext>(
                 options =>
                 {
                     options.UseSqlServer(Configuration.GetConnectionString("HISConnection"));

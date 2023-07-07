@@ -45,7 +45,7 @@ namespace ServiceProject.Seeder
                 var hashed = password.HashPassword(user, "P@ssw0rd");
                 user.PasswordHash = hashed;
 
-                var result = await _userManager.CreateAsync(user);
+                await _userManager.CreateAsync(user);
             }
 
             await AssignRoles(serviceProvider, _userManager, user.Email, Constants.Technician);

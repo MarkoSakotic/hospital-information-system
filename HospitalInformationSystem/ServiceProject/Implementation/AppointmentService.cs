@@ -17,11 +17,11 @@ namespace ServiceProject.Implementation
 {
     public class AppointmentService : IAppointmentService
     {
-        private readonly HISContext _context;
+        private readonly HisContext _context;
         private readonly IMapper _mapper;
         private readonly JwtParser _jwtParser;
 
-        public AppointmentService(HISContext context, IMapper mapper, JwtParser jwtParser)
+        public AppointmentService(HisContext context, IMapper mapper, JwtParser jwtParser)
         {
             _context = context;
             _mapper = mapper;
@@ -182,7 +182,7 @@ namespace ServiceProject.Implementation
                    .ToListAsync();
             }
 
-            if (appointments.Count() == 0)
+            if (!appointments.Any())
             {
                 response.Errors.Add("There is no appointments in database.");
                 return response;
@@ -271,13 +271,10 @@ namespace ServiceProject.Implementation
                 response.Errors.Add("Unable to schedule appointment because it doesn't exists.");
                 return response;
             }
-            if (appointment.Note == "Coffee Break")
+            if (appointment.Note == "Coffee Break" && appointmentSchedule.Note == "Coffee Break")
             {
-                if (appointmentSchedule.Note == "Coffee Break")
-                {
-                    response.Errors.Add("You cannot schedule this appointment because doctor is on coffee break as usual.");
-                    return response;
-                }
+                response.Errors.Add("You cannot schedule this appointment because doctor is on coffee break as usual.");
+                return response;
             }
             if (appointmentSchedule.PatientId == "" || appointmentSchedule.PatientId == null)
             {
@@ -396,7 +393,7 @@ namespace ServiceProject.Implementation
                        .ToListAsync();
             }
 
-            if (appointments.Count() == 0)
+            if (!appointments.Any())
             {
                 response.Errors.Add("There is no appointments for given filters.");
                 return response;

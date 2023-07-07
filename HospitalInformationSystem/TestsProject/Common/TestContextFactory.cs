@@ -9,14 +9,14 @@ namespace TestsProject.Common
 {
     public static class TestContextFactory
     {
-        public static HISContext CreateInMemoryHISContext()
+        public static HisContext CreateInMemoryHisContext()
         {
-            var options = new DbContextOptionsBuilder<HISContext>()
-               .UseInMemoryDatabase(databaseName: "HISContextTest")
+            var options = new DbContextOptionsBuilder<HisContext>()
+               .UseInMemoryDatabase(databaseName: "HisContextTest")
                .Options;
 
-            return new HISContext(options);
-            //return new HISContext(null);
+            return new HisContext(options);
+            //return new HisContext(null);
         }
 
 

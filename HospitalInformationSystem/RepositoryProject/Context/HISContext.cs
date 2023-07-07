@@ -8,10 +8,10 @@ using System.Text;
 
 namespace RepositoryProject.Context
 {
-    public class HISContext : IdentityDbContext<ApiUser, IdentityRole, string>
+    public class HisContext : IdentityDbContext<ApiUser, IdentityRole, string>
     {
 
-        public HISContext(DbContextOptions<HISContext> options) : base(options)
+        public HisContext(DbContextOptions<HisContext> options) : base(options)
         {
         }
 
@@ -20,29 +20,29 @@ namespace RepositoryProject.Context
         public DbSet<Technician> Technicians { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(builder);
 
-            modelBuilder.Entity<Patient>().ToTable("Patient");
-            modelBuilder.Entity<Doctor>().ToTable("Doctor");
-            modelBuilder.Entity<Technician>().ToTable("Technician");
-            modelBuilder.Entity<Appointment>().ToTable("Appointment");
+            builder.Entity<Patient>().ToTable("Patient");
+            builder.Entity<Doctor>().ToTable("Doctor");
+            builder.Entity<Technician>().ToTable("Technician");
+            builder.Entity<Appointment>().ToTable("Appointment");
 
 
-            modelBuilder.Entity<Appointment>()
+            builder.Entity<Appointment>()
            .HasOne<Patient>(s => s.Patient)
            .WithMany(g => g.Appointments)
            .HasForeignKey(s => s.PatientId);
 
 
-            modelBuilder.Entity<Appointment>()
+            builder.Entity<Appointment>()
            .HasOne<Doctor>(s => s.Doctor)
            .WithMany(g => g.Appointments)
            .HasForeignKey(s => s.DoctorId);
 
 
-            modelBuilder
+            builder
             .Entity<Patient>()
             .Property(e => e.Id)
             .ValueGeneratedOnAdd();

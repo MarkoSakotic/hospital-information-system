@@ -56,7 +56,7 @@ namespace WebApi
                 o.Password.RequireUppercase = true;
                 o.User.RequireUniqueEmail = true;
             })
-            .AddEntityFrameworkStores<HISContext>()
+            .AddEntityFrameworkStores<HisContext>()
             .AddDefaultTokenProviders();
 
             var jwtSettings = new JwtSettings();
@@ -65,7 +65,7 @@ namespace WebApi
 
             services.ConfigureAuthentication(jwtSettings);
             services.AddAuthorization();
-            services.AddDbContext<HISContext>(options => options.UseSqlServer(Configuration.GetConnectionString("HISConnection")));
+            services.AddDbContext<HisContext>(options => options.UseSqlServer(Configuration.GetConnectionString("HISConnection")));
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.ConfigureSwagger();

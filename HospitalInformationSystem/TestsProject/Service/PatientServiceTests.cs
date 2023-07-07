@@ -26,7 +26,7 @@ namespace TestsProject.Service
     {
         private static readonly IServiceProvider _serviceProvider = BuildServiceProviderTest();
         private readonly Mock<IMapper> _mapperMock;
-        private readonly HISContext _contextTest;
+        private readonly HisContext _contextTest;
         private readonly PatientFixture _patientFixture;
         private readonly DoctorFixture _doctorFixture;
         private readonly PatientResponseFixture _patientResponseFixture;
@@ -38,9 +38,9 @@ namespace TestsProject.Service
         {
             //var serviceProvider = BuildTestServiceProvider();
             _mapperMock = new Mock<IMapper>();
-            _contextTest = TestContextFactory.CreateInMemoryHISContext();
+            _contextTest = TestContextFactory.CreateInMemoryHisContext();
             _jwtParserMock = new Mock<JwtParser>();
-            _contextTest = _serviceProvider.GetRequiredService<HISContext>();
+            _contextTest = _serviceProvider.GetRequiredService<HisContext>();
             _patientFixture = patientFixture;
             _patientResponseFixture = patientResponseFixture;
             _doctorFixture = doctorFixture;
@@ -55,7 +55,7 @@ namespace TestsProject.Service
 
             //services.Configure<HisConfiguration>(configuration.GetSection("HISConnection"));
 
-            services.AddDbContext<HISContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
+            services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
                 ServiceLifetime.Scoped,
                 ServiceLifetime.Scoped);
 
@@ -335,7 +335,7 @@ namespace TestsProject.Service
 
             services.Configure<HisConfiguration>(testingConfiguration.GetSection("HISConnection"));
 
-            services.AddDbContext<HISContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
+            services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
                 ServiceLifetime.Scoped,
                 ServiceLifetime.Scoped);
 

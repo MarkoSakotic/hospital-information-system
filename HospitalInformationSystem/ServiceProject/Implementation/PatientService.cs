@@ -18,11 +18,11 @@ namespace ServiceProject.Implementation
     public class PatientService : IPatientService
     {
         private readonly UserManager<ApiUser> _userManager;
-        private readonly HISContext _context;
+        private readonly HisContext _context;
         private readonly IMapper _mapper;
         private readonly JwtParser _jwtParser;
 
-        public PatientService(UserManager<ApiUser> userManager, HISContext context, IMapper mapper, JwtParser jwtParser)
+        public PatientService(UserManager<ApiUser> userManager, HisContext context, IMapper mapper, JwtParser jwtParser)
         {
             _userManager = userManager;
             _context = context;
@@ -85,7 +85,7 @@ namespace ServiceProject.Implementation
                 return response;
             }
 
-            _context.Appointments.RemoveRange(_context.Appointments.Where(a => a.Completed == false && a.PatientId == id));
+            _context.Appointments.RemoveRange(_context.Appointments.Where(a => !a.Completed && a.PatientId == id));
             _context.Users.Remove(patient);
             await _context.SaveChangesAsync();
 
@@ -99,7 +99,7 @@ namespace ServiceProject.Implementation
             response.Roles.Add(_jwtParser.GetRoleFromJWT());
             var patients = await _context.Patients.ToListAsync();
 
-            if (patients.Count() == 0)
+            if (!patients.Any())
             {
                 response.Result = "There is no patients in database.";
                 return response;

@@ -17,7 +17,7 @@ namespace ServiceProject.Implementation
         private readonly UserManager<ApiUser> _userManager;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly JwtParser _jwtParser;
-        private IMapper _mapper;
+        private readonly IMapper _mapper;
 
         public IdentityService(UserManager<ApiUser> userManager,
             ITokenGenerator tokenGenerator, JwtParser jwtParser, IMapper mapper)

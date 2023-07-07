@@ -8,8 +8,8 @@ using RepositoryProject.Context;
 
 namespace RepositoryProject.Migrations
 {
-    [DbContext(typeof(HISContext))]
-    partial class HISContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(HisContext))]
+    partial class HisContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

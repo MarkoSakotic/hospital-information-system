@@ -17,12 +17,12 @@ namespace ServiceProject.Implementation
 {
     public class DoctorService : IDoctorService
     {
-        private readonly HISContext _context;
+        private readonly HisContext _context;
         private readonly UserManager<ApiUser> _userManager;
-        private IMapper _mapper;
+        private readonly IMapper _mapper;
         private readonly JwtParser _jwtParser;
 
-        public DoctorService(HISContext context, IMapper mapper, UserManager<ApiUser> userManager, JwtParser jwtParser)
+        public DoctorService(HisContext context, IMapper mapper, UserManager<ApiUser> userManager, JwtParser jwtParser)
         {
             _context = context;
             _userManager = userManager;
@@ -87,7 +87,7 @@ namespace ServiceProject.Implementation
                 return response;
             }
 
-            _context.Appointments.RemoveRange(_context.Appointments.Where(a => a.DoctorId == id && a.Completed == false));
+            _context.Appointments.RemoveRange(_context.Appointments.Where(a => a.DoctorId == id && !a.Completed));
             _context.Doctors.Remove(doctor);
             await _context.SaveChangesAsync();
 
@@ -102,7 +102,7 @@ namespace ServiceProject.Implementation
 
             var doctors = await _context.Doctors.ToListAsync();
 
-            if (doctors.Count() == 0)
+            if (!doctors.Any())
             {
                 response.Errors.Add("There is no Doctors in databse.");
                 return response;
