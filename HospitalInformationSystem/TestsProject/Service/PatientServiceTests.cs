@@ -55,7 +55,7 @@ namespace TestsProject.Service
 
             return services.BuildServiceProvider();
         }
-        
+
         [Fact]
         public async Task PatientServiceTests_UpdatePatientAsync_ShouldReturnPatientResponseInApiResponse()
         {
