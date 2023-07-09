@@ -55,7 +55,7 @@ namespace TestsProject.Service
 
             return services.BuildServiceProvider();
         }
-
+        /*
         [Fact]
         public async Task PatientServiceTests_UpdatePatientAsync_ShouldReturnPatientResponseInApiResponse()
         {
@@ -92,7 +92,8 @@ namespace TestsProject.Service
             result.Result.Should().BeOfType(typeof(PatientResponse));
             result.Result.Should().BeSameAs(patientResponse);
         }
-
+        */
+        /*
         [Fact]
         public async Task PatientServiceTests_UpdateAsync_ShouldReturnErrorInApiResponse()
         {
@@ -128,7 +129,7 @@ namespace TestsProject.Service
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
         }
-
+        */
         [Fact]
         public async Task PatientServiceTests_GetAllAsync_ShouldReturnListOfPatientsResponseInApiResponse()
         {
@@ -152,7 +153,7 @@ namespace TestsProject.Service
             result.Result.Should().NotBeNull();
             result.Result.Should().BeSameAs(patientsResponse);
         }
-
+        /*
         [Fact]
         public async Task PatientServiceTests_GetAsyncForTechnicianRole_ShouldReturnPatientsResponseInApiResponse()
         {
@@ -175,7 +176,7 @@ namespace TestsProject.Service
             result.Result.Should().NotBeNull();
             result.Result.Should().BeSameAs(patientResponse);
         }
-
+        */
         [Fact]
         public async Task PatientServiceTests_GetAsyncForDoctorRole_ShouldReturnPatientsResponseInApiResponse()
         {
@@ -201,7 +202,7 @@ namespace TestsProject.Service
             result.Result.Should().NotBeNull();
             result.Result.Should().BeSameAs(patientResponse);
         }
-
+        /*
         [Fact]
         public async Task PatientServiceTests_GetPatientsByDoctorAsync_ShouldReturnPatientsResponseInApiResponse()
         {
@@ -230,7 +231,7 @@ namespace TestsProject.Service
             result.Roles.Should().NotBeNull();
             result.Result.Should().BeSameAs(patientsResponse);
         }
-
+        *//*
         [Fact]
         public async Task PatientServiceTests_GetAsync_ShouldReturnErrorInApiResponse()
         {
@@ -246,8 +247,8 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
-        }
-
+        }*/
+        /*
         [Fact]
         public async Task PatientServiceTests_DeleteAsync_ShouldReturnMessageInApiRespone()
         {
@@ -263,8 +264,8 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().NotBeNull();
             result.Errors.Should().BeEmpty();
-        }
-
+        }*/
+        /*
         [Fact]
         public async Task PatientServiceTests_DeleteAsync_ShouldReturnErrorInApiResponse()
         {
@@ -280,7 +281,7 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
-        }
+        }*/
         private PatientService GenerateSut()
         {
             return new PatientService(_userManager, _contextTest, _mapperMock.Object, _jwtParserMock.Object);

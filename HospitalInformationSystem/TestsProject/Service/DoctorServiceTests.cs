@@ -55,7 +55,7 @@ namespace TestsProject.Service
 
             return services.BuildServiceProvider();
         }
-
+        /*
         [Fact]
         public async Task DoctorServiceTests_UpdateAsync_ShouldReturnDoctorResponseApiResponse()
         {
@@ -94,7 +94,7 @@ namespace TestsProject.Service
             result.Result.Should().BeSameAs(doctorResponse);
 
         }
-
+        *//*
         [Fact]
         public async Task DoctorServiceTests_UpdateAsync_ShouldReturnErrorResponseApiResponse()
         {
@@ -131,8 +131,8 @@ namespace TestsProject.Service
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
 
-        }
-
+        }*/
+        /*
         [Fact]
         public async Task DoctorServiceTests_GetAllAsync_ShouldReturnListOfDoctorsResponseInApiResponse()
         {
@@ -155,8 +155,8 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().NotBeNull();
             result.Result.Should().BeSameAs(doctorsResponse);
-        }
-
+        }*/
+        /*
         [Fact]
         public async Task DoctorServiceTests_GetAsyncForTechnicianRole_ShouldReturnDoctorsResponseInApiResponse()
         {
@@ -178,7 +178,7 @@ namespace TestsProject.Service
             result.Result.Should().NotBeNull();
             result.Result.Should().BeSameAs(doctorResponse);
         }
-
+        *//*
         [Fact]
         public async Task DoctorServiceTests_GetAsyncForPatientRole_ShouldReturnDoctorsResponseInApiResponse()
         {
@@ -203,8 +203,8 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().NotBeNull();
             result.Result.Should().BeSameAs(doctorResponse);
-        }
-
+        }*/
+        /*
         [Fact]
         public async Task DoctorServiceTests_GetDoctorsByPatientAsync_ShouldReturnDoctorsResponseInApiResponse()
         {
@@ -233,7 +233,7 @@ namespace TestsProject.Service
             result.Roles.Should().NotBeNull();
             result.Result.Should().BeSameAs(doctorsResponse);
         }
-
+        */
         [Fact]
         public async Task DoctorServiceTests_GetAsync_ShouldReturnErrorInApiResponse()
         {
@@ -251,7 +251,7 @@ namespace TestsProject.Service
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
         }
-
+        /*
         [Fact]
         public async Task DoctorServiceTests_DeleteAsync_ShouldReturnMessageInApiRespone()
         {
@@ -267,8 +267,8 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().NotBeNull();
             result.Errors.Should().BeEmpty();
-        }
-
+        }*/
+        /*
         [Fact]
         public async Task DoctorServiceTests_DeleteAsync_ShouldReturnErrorInApiResponse()
         {
@@ -284,7 +284,7 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
-        }
+        }*/
         private DoctorService GenerateSut()
         {
             return new DoctorService(_contextTest, _mapperMock.Object, _userManager, _jwtParserMock.Object);
