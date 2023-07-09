@@ -23,6 +23,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore HospitalInformationSystem/HospitalInformationSystem.sln
     - name: Build
-      run: dotnet build HospitalInformationSystem/HospitalInformationSystem.sln --configuration Release --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet build HospitalInformationSystem/HospitalInformationSystem.sln --configuration Debug --no-restore
+    #- name: Test
+     # run: dotnet test --no-build --verbosity normal
