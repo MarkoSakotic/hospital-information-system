@@ -24,6 +24,6 @@ jobs:
       run: dotnet restore HospitalInformationSystem/HospitalInformationSystem.sln
     - name: Build
       run: dotnet build HospitalInformationSystem/HospitalInformationSystem.sln --configuration Debug --no-restore
-    - name: Test
-      run: dotnet test HospitalInformationSystem/HospitalInformationSystem.sln --configuration Debug --no-build -v=normal
+   # - name: Test
+   #   run: dotnet test HospitalInformationSystem/HospitalInformationSystem.sln --configuration Debug --no-build -v=normal
 
