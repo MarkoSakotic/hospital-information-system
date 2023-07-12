@@ -38,7 +38,7 @@ namespace WebMVC
             services.AddDbContext<HisContext>(
                 options =>
                 {
-                    options.UseSqlServer(Configuration.GetConnectionString("HISConnection"));
+                    options.UseSqlServer(Configuration.GetConnectionString("c"));
                     options.EnableSensitiveDataLogging();
                 }
                 );

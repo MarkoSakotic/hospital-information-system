@@ -296,8 +296,6 @@ namespace RepositoryProject.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Appointment");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
@@ -318,13 +316,16 @@ namespace RepositoryProject.Migrations
                 name: "Technician");
 
             migrationBuilder.DropTable(
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Appointment");
+
+            migrationBuilder.DropTable(
                 name: "Doctor");
 
             migrationBuilder.DropTable(
                 name: "Patient");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

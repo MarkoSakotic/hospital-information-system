@@ -173,7 +173,7 @@ namespace WebMVC.Controllers
                     patients = patients.Where(d => d.FirstName.ToLower().StartsWith(searchString.ToLower())
                                            || d.LastName.ToLower().StartsWith(searchString.ToLower()));
                 }
-                if (patients.Count() != 0)
+                if (patients.Any())
                 {
                     switch (sortOrder)
                     {

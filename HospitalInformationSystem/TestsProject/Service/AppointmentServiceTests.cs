@@ -40,7 +40,7 @@ namespace TestsProject.Service
             _appointmentResponseFixture = appointmentResponseFixture;
             _appointmentFilterFixture = appointmentFilterFixture;
         }
-        /*
+
         [Fact]
         public async Task AppointmentServiceTests_CreateAppointmentsAsync_ShouldReturnListOfAppointmentsInApiResponse()
         {
@@ -69,7 +69,7 @@ namespace TestsProject.Service
             result.Result.Should().BeOfType(typeof(List<AppointmentResponse>));
             result.Result.Should().BeSameAs(appointmentResponse);
         }
-        */
+
         [Fact]
         public async Task AppointmentServiceTests_GetAppointmentAsync_ShouldReturnListOfAppointmentsInApiResponse()
         {
@@ -91,7 +91,7 @@ namespace TestsProject.Service
             result.Should().NotBeNull();
             result.Result.Should().BeSameAs(appointmentResponse);
         }
-        /*
+
         [Fact]
         public async Task AppointmentServiceTests_GetAppointmentAsync_ShouldReturnErrorInApiResponse()
         {
@@ -111,8 +111,8 @@ namespace TestsProject.Service
             result.Should().NotBeNull();
             result.Errors.Should().NotBeEmpty();
             result.Errors.Should().Contain("Unable to get appointment, because it doesn't exists.");
-        }*/
-        /*
+        }
+
         [Fact]
         public async Task AppointmentServiceTests_GetAllAppointmentsAsync_ShouldReturnListOfAppointmentsInApiResponse()
         {
@@ -135,8 +135,8 @@ namespace TestsProject.Service
             //assert
             Assert.NotNull(result);
             result.Result.Should().BeSameAs(appointmentsResponse);
-        }*/
-        /*
+        }
+
         [Fact]
         public async Task AppointmentServiceTests_GetAllAppointmentsAsync_ShouldReturnErrorInApiResponse()
         {
@@ -155,7 +155,7 @@ namespace TestsProject.Service
             Assert.NotNull(result);
             result.Errors.Should().Contain("There is no appointments in databse.");
         }
-        *//*
+
         [Fact]
         public async Task AppointmentServiceTests_DeleteAsync_ShouldReturnMessageInApiRespone()
         {
@@ -171,8 +171,8 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().NotBeNull();
             result.Errors.Should().BeEmpty();
-        }*/
-        /*
+        }
+
         [Fact]
         public async Task AppointmentServiceTests_DeleteAsync_ShouldReturnErrorInApiResponse()
         {
@@ -189,7 +189,7 @@ namespace TestsProject.Service
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
         }
-        /*
+
         [Fact]
         public async Task AppointmentServiceTests_ScheduleAppointmentAsync_ShouldReturnAppointmentInApiResponse()
         {
@@ -215,7 +215,7 @@ namespace TestsProject.Service
             result.Should().NotBeNull();
             result.Result.Should().BeOfType(typeof(AppointmentResponse));
             result.Result.Should().BeSameAs(appointmentResponse);
-        }*/
+        }
 
         [Fact]
         public async Task AppointmentServiceTests_ScheduleAppointmentAsync_ShouldReturnErrorForAppointmentObjInApiResponse()
@@ -239,7 +239,7 @@ namespace TestsProject.Service
             result.Should().NotBeNull();
             result.Errors.Should().Contain("Unable to schedule appointment because it doesn't exists.");
         }
-        /*
+
         [Fact]
         public async Task AppointmentServiceTests_ScheduleAppointmentAsync_ShouldReturnErrorForPatientIdInApiResponse()
         {
@@ -263,8 +263,8 @@ namespace TestsProject.Service
             //assert
             result.Should().NotBeNull();
             result.Errors.Should().Contain("Choosen appointment is already scheduled.");
-        }*/
-        /*
+        }
+
         [Fact]
         public async Task AppointmentServiceTests_GetAllAppointmentsForUserWithinGivenPeriodAsyncForPatient_ShouldReturnAppointmensInApiResponse()
         {
@@ -292,8 +292,8 @@ namespace TestsProject.Service
             result.Result.Should().NotBeNull();
             result.Errors.Should().BeEmpty();
 
-        }*/
-        /*
+        }
+
         [Fact]
         public async Task AppointmentServiceTests_GetAllAppointmentsForUserWithinGivenPeriodAsyncForDoctor_ShouldReturnAppointmensInApiResponse()
         {
@@ -322,12 +322,13 @@ namespace TestsProject.Service
             result.Errors.Should().BeEmpty();
 
         }
-        */
+
         [Fact]
         public async Task AppointmentServiceTests_GetAllAppointmentsForUserWithinGivenPeriodAsync_ShouldReturnErrorInApiResponse()
         {
             //arrange
             var appointment = _appointmentFilterFixture.Generate();
+
             var sut = GenerateSut();
 
             //act
@@ -341,6 +342,9 @@ namespace TestsProject.Service
         private static IServiceProvider BuildServiceProviderTest()
         {
             var services = new ServiceCollection();
+            var configuration = TestingConfigurationBuilder.BuildConfiguration();
+
+            services.Configure<HisConfiguration>(configuration.GetSection("HISConnection"));
 
             services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
                 ServiceLifetime.Scoped,
@@ -370,6 +374,20 @@ namespace TestsProject.Service
             return new AppointmentService(_contextTest, _mapperMock.Object, _jwtParserMock.Object);
         }
 
+        private IServiceProvider BuildTestServiceProvider()
+        {
+            var services = new ServiceCollection();
+
+            var testingConfiguration = TestingConfigurationBuilder.GetTestConfiguration();
+
+            services.Configure<HisConfiguration>(testingConfiguration.GetSection("HISConnection"));
+
+            services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
+                ServiceLifetime.Scoped,
+                ServiceLifetime.Scoped);
+
+            return services.BuildServiceProvider();
+        }
     }
 
 }

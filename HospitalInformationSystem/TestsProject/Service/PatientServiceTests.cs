@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DtoEntityProject;
 using DtoEntityProject.Constants;
+using DtoEntityProject.Configuration;
 using EntityProject;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
@@ -30,10 +31,11 @@ namespace TestsProject.Service
         private readonly PatientFixture _patientFixture;
         private readonly DoctorFixture _doctorFixture;
         private readonly PatientResponseFixture _patientResponseFixture;
+        private readonly AppointmentFixture _appointmentFixture;
         private readonly Mock<JwtParser> _jwtParserMock;
         private readonly UserManager<ApiUser> _userManager;
 
-        public PatientServiceTests(PatientFixture patientFixture, PatientResponseFixture patientResponseFixture, DoctorFixture doctorFixture)
+        public PatientServiceTests(PatientFixture patientFixture, PatientResponseFixture patientResponseFixture, DoctorFixture doctorFixture, AppointmentFixture appointmentFixture)
         {
             _mapperMock = new Mock<IMapper>();
             _contextTest = TestContextFactory.CreateInMemoryHisContext();
@@ -42,12 +44,16 @@ namespace TestsProject.Service
             _patientFixture = patientFixture;
             _patientResponseFixture = patientResponseFixture;
             _doctorFixture = doctorFixture;
+            _appointmentFixture = appointmentFixture;
             _userManager = new UserManager<ApiUser>(new UserStore<ApiUser>(_contextTest), null, null, null, null, null, null, null, null);
         }
 
         private static IServiceProvider BuildServiceProviderTest()
         {
             var services = new ServiceCollection();
+            var configuration = TestingConfigurationBuilder.BuildConfiguration();
+
+            services.Configure<HisConfiguration>(configuration.GetSection("HISConnection"));
 
             services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
                 ServiceLifetime.Scoped,
@@ -55,7 +61,42 @@ namespace TestsProject.Service
 
             return services.BuildServiceProvider();
         }
-        /*
+        
+        [Fact]
+        public async Task PatientServiceTests_AddAsync_ShouldReturnPatientResponseInApiResponse()
+        {
+            //arrange
+            PatientRequest request = new PatientRequest
+            {
+                Email = "email@gmail.com",
+                Address = "aaa",
+                Phone = "sdasddsad",
+                Password = "P@ssw0rd",
+                DateOfBirth = DateTime.Now,
+                SSN = "sadsadsad",
+                FirstName = "das",
+                LastName = "dsa"
+            };
+            var response = _patientResponseFixture.Generate();
+            var patient = _patientFixture.Generate();
+            _mapperMock.Setup(x => x.Map<Patient>(It.IsAny<PatientRequest>()))
+                 .Returns(patient);
+            _mapperMock.Setup(x => x.Map<PatientResponse>(It.IsAny<Patient>()))
+                 .Returns(response);
+            _jwtParserMock.Setup(x => x.GetRoleFromJWT())
+                .Returns(Constants.Technician);
+
+            var sut = GenerateSut();
+
+            //act
+            var result = await sut.AddAsync(request);
+
+            //assert
+            result.Should().BeOfType(typeof(ApiResponse));
+            result.Result.Should().BeOfType(typeof(PatientResponse));
+            result.Result.Should().BeSameAs(response);
+        }
+        
         [Fact]
         public async Task PatientServiceTests_UpdatePatientAsync_ShouldReturnPatientResponseInApiResponse()
         {
@@ -92,8 +133,7 @@ namespace TestsProject.Service
             result.Result.Should().BeOfType(typeof(PatientResponse));
             result.Result.Should().BeSameAs(patientResponse);
         }
-        */
-        /*
+
         [Fact]
         public async Task PatientServiceTests_UpdateAsync_ShouldReturnErrorInApiResponse()
         {
@@ -129,7 +169,7 @@ namespace TestsProject.Service
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
         }
-        */
+
         [Fact]
         public async Task PatientServiceTests_GetAllAsync_ShouldReturnListOfPatientsResponseInApiResponse()
         {
@@ -153,7 +193,7 @@ namespace TestsProject.Service
             result.Result.Should().NotBeNull();
             result.Result.Should().BeSameAs(patientsResponse);
         }
-        /*
+
         [Fact]
         public async Task PatientServiceTests_GetAsyncForTechnicianRole_ShouldReturnPatientsResponseInApiResponse()
         {
@@ -176,7 +216,7 @@ namespace TestsProject.Service
             result.Result.Should().NotBeNull();
             result.Result.Should().BeSameAs(patientResponse);
         }
-        */
+
         [Fact]
         public async Task PatientServiceTests_GetAsyncForDoctorRole_ShouldReturnPatientsResponseInApiResponse()
         {
@@ -202,7 +242,7 @@ namespace TestsProject.Service
             result.Result.Should().NotBeNull();
             result.Result.Should().BeSameAs(patientResponse);
         }
-        /*
+
         [Fact]
         public async Task PatientServiceTests_GetPatientsByDoctorAsync_ShouldReturnPatientsResponseInApiResponse()
         {
@@ -231,7 +271,7 @@ namespace TestsProject.Service
             result.Roles.Should().NotBeNull();
             result.Result.Should().BeSameAs(patientsResponse);
         }
-        *//*
+
         [Fact]
         public async Task PatientServiceTests_GetAsync_ShouldReturnErrorInApiResponse()
         {
@@ -247,8 +287,8 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
-        }*/
-        /*
+        }
+
         [Fact]
         public async Task PatientServiceTests_DeleteAsync_ShouldReturnMessageInApiRespone()
         {
@@ -264,8 +304,8 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().NotBeNull();
             result.Errors.Should().BeEmpty();
-        }*/
-        /*
+        }
+
         [Fact]
         public async Task PatientServiceTests_DeleteAsync_ShouldReturnErrorInApiResponse()
         {
@@ -281,12 +321,25 @@ namespace TestsProject.Service
             //assert
             result.Result.Should().BeNull();
             result.Errors.Should().NotBeEmpty();
-        }*/
+        }
         private PatientService GenerateSut()
         {
             return new PatientService(_userManager, _contextTest, _mapperMock.Object, _jwtParserMock.Object);
         }
+        private IServiceProvider BuildTestServiceProvider()
+        {
+            var services = new ServiceCollection();
 
+            var testingConfiguration = TestingConfigurationBuilder.GetTestConfiguration();
+
+            services.Configure<HisConfiguration>(testingConfiguration.GetSection("HISConnection"));
+
+            services.AddDbContext<HisContext>(opt => opt.UseInMemoryDatabase(databaseName: "InMemoryDb"),
+                ServiceLifetime.Scoped,
+                ServiceLifetime.Scoped);
+
+            return services.BuildServiceProvider();
+        }
     }
 
 }
