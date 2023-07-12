@@ -12,6 +12,7 @@ using RepositoryProject.Context;
 using ServiceProject.Implementation;
 using ServiceProject.Interface;
 using ServiceProject.Seeder;
+using ServiceProject.TokenGenerator;
 using ServiceProject.Utility;
 using System;
 
@@ -38,7 +39,7 @@ namespace WebMVC
             services.AddDbContext<HisContext>(
                 options =>
                 {
-                    options.UseSqlServer(Configuration.GetConnectionString("c"));
+                    options.UseSqlServer(Configuration.GetConnectionString("HISConnection"));
                     options.EnableSensitiveDataLogging();
                 }
                 );
@@ -48,8 +49,11 @@ namespace WebMVC
             services.AddScoped<IAppointmentService, AppointmentService>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<JwtParser>();
+            services.AddScoped<ITokenGenerator, TokenGenerator>();
             services.AddTransient<TechnicianSeeder>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddSession();
+            services.AddRazorPages();
 
             services.AddControllersWithViews();
 
@@ -85,6 +89,9 @@ namespace WebMVC
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapRazorPages();
+
             });
         }
     }

@@ -45,7 +45,7 @@
         }
     </style>
 </head>
-<body>
+<body style="background-color: #e3e8fc">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <!-- Container wrapper -->
@@ -64,32 +64,32 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Patient" asp-action="GetPatientsByDoctor">Patients</a>
                             </li>
- }
+                        }
                         else if (User.IsInRole(Constants.Technician))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Patient" asp-action="GetAll">Patients</a>
                             </li>
-}
+                        }
                         @if (User.IsInRole(Constants.Patient))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Doctor" asp-action="GetDoctorsByPatient">Doctors</a>
                             </li>
- }
+                        }
                         else if (User.IsInRole(Constants.Technician))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Doctor" asp-action="GetAll">Doctors</a>
                             </li>
-}
+                        }
 
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="GetAll">Appointments</a>
                             </li>
-}
+                        }
 
                     </ul>
                     <!-- Left links -->
@@ -104,13 +104,13 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
                             </li>
- }
+                        }
                         else
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
-}
+                        }
                     </ul>
                 </div>
             </div>
@@ -125,6 +125,7 @@
             @RenderBody()
         </main>
     </div>
+    <img src="~/lib/slika1.png" style="margin-left:280px; margin-bottom:10px; height:370px; width:650px; opacity:0.7" />
     <footer class="border-top footer text-muted">
         <div class="container text-center">
             &copy; 2023 - HIS
